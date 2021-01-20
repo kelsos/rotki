@@ -25,6 +25,7 @@ export function shouldSkip(): void {
   // eslint-disable-next-line no-console
   console.log(`The event payload: ${JSON.stringify(context.payload)}`)
 
+
   //client.git.getCommit({commit_sha: })
 }
 
