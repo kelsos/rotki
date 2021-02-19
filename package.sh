@@ -199,7 +199,7 @@ function generate_checksum() {
 cd frontend/app/dist || exit 1
 
 if [[ "$PLATFORM" == "linux" ]]; then
-  GENERATED_APPIMAGE=$(find "$(pwd)/frontend/app/dist/" -name "rotki-linux*.AppImage"  | head -n 1)
+  GENERATED_APPIMAGE=$(find "$(pwd)" -name "rotki-linux*.AppImage"  | head -n 1)
   generate_checksum "$PLATFORM" "rotki-linux*.AppImage" APPIMAGE_CHECKSUM
   generate_checksum "$PLATFORM" "rotki-linux*.tar.xz" TAR_CHECKSUM
   generate_checksum "$PLATFORM" "rotki-linux*.deb" DEB_CHECKSUM
