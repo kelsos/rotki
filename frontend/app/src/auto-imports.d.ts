@@ -240,6 +240,7 @@ declare global {
   const sanitizeAddress: typeof import('./utils/text')['sanitizeAddress']
   const saveBackendUrl: typeof import('./utils/account-management')['saveBackendUrl']
   const saveUserOptions: typeof import('./composables/backend')['saveUserOptions']
+  const serializer: typeof import('./composables/dynamic-messages')['serializer']
   const set: typeof import('@vueuse/shared')['set']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setLastLogin: typeof import('./utils/account-management')['setLastLogin']
@@ -302,6 +303,7 @@ declare global {
   const updateBlockchainAssetBalances: typeof import('./utils/prices')['updateBlockchainAssetBalances']
   const updateBtcPrices: typeof import('./utils/prices')['updateBtcPrices']
   const updateTotalsPrices: typeof import('./utils/prices')['updateTotalsPrices']
+  const use: typeof import('./composables/premium')['use']
   const useAaveApi: typeof import('./composables/api/defi/aave')['useAaveApi']
   const useAaveStore: typeof import('./store/defi/aave/index')['useAaveStore']
   const useAbs: typeof import('@vueuse/math')['useAbs']
@@ -584,6 +586,7 @@ declare global {
   const usePremiumCredentialsApi: typeof import('./composables/api/session/premium-credentials')['usePremiumCredentialsApi']
   const usePremiumReminder: typeof import('./composables/premium')['usePremiumReminder']
   const usePremiumStore: typeof import('./store/session/premium')['usePremiumStore']
+  const usePremiumSyncStatus: typeof import('./composables/premium')['usePremiumSyncStatus']
   const usePrevious: typeof import('@vueuse/core')['usePrevious']
   const usePriceApi: typeof import('./composables/api/balances/price')['usePriceApi']
   const usePrivacyMode: typeof import('./composables/privacy')['usePrivacyMode']
@@ -966,6 +969,7 @@ declare module 'vue' {
     readonly sanitizeAddress: UnwrapRef<typeof import('./utils/text')['sanitizeAddress']>
     readonly saveBackendUrl: UnwrapRef<typeof import('./utils/account-management')['saveBackendUrl']>
     readonly saveUserOptions: UnwrapRef<typeof import('./composables/backend')['saveUserOptions']>
+    readonly serializer: UnwrapRef<typeof import('./composables/dynamic-messages')['serializer']>
     readonly set: UnwrapRef<typeof import('@vueuse/shared')['set']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setLastLogin: UnwrapRef<typeof import('./utils/account-management')['setLastLogin']>
@@ -1686,6 +1690,7 @@ declare module '@vue/runtime-core' {
     readonly sanitizeAddress: UnwrapRef<typeof import('./utils/text')['sanitizeAddress']>
     readonly saveBackendUrl: UnwrapRef<typeof import('./utils/account-management')['saveBackendUrl']>
     readonly saveUserOptions: UnwrapRef<typeof import('./composables/backend')['saveUserOptions']>
+    readonly serializer: UnwrapRef<typeof import('./composables/dynamic-messages')['serializer']>
     readonly set: UnwrapRef<typeof import('@vueuse/shared')['set']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setLastLogin: UnwrapRef<typeof import('./utils/account-management')['setLastLogin']>

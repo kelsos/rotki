@@ -730,6 +730,9 @@
     "isEventMissingAccountingRuleType": true,
     "isAccountingRuleProcessed": true,
     "isEventAccountingRuleProcessed": true,
-    "isMissingAccountingRule": true
+    "isMissingAccountingRule": true,
+    "use": true,
+    "usePremiumSyncStatus": true,
+    "serializer": true
   }
 }
