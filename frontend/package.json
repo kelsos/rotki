@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@intlify/eslint-plugin-vue-i18n": "3.0.0",
-    "@rotki/eslint-config": "2.9.1",
+    "@rotki/eslint-config": "file://../../eslint-config",
     "@rotki/eslint-plugin": "0.4.0",
     "argparse": "2.0.1",
     "dotenv": "16.4.5",

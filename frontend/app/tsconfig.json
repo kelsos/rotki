@@ -1,32 +1,17 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "compilerOptions": {
-    "composite": true,
-    "baseUrl": ".",
-    "rootDir": ".",
-    "paths": {
-      "@/*": ["./src/*"]
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
     },
-    "types": [
-      "node",
-      "vue-i18n",
-      "vite/client",
-      "vite-plugin-vue-layouts/client",
-      "unplugin-vue-router/client",
-      "@intlify/unplugin-vue-i18n/messages"
-    ],
-    "verbatimModuleSyntax": false
-  },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "components.d.ts",
-    "typed-router.d.ts"
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
+    }
   ],
-  "exclude": ["node_modules/**", "**/.*"],
-  "vueCompilerOptions": {
-    "target": 3.4
+  "compilerOptions": {
+    "module": "NodeNext"
   }
 }
