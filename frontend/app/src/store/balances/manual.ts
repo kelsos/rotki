@@ -1,4 +1,4 @@
-import { type AssetBalances, type BalanceByLocation, BalanceType, type LocationBalance } from '@/types/balances';
+import { type AssetBalance, type BalanceByLocation, BalanceType, type LocationBalance } from '@/types/balances';
 import {
   type ManualBalance,
   type ManualBalanceRequestPayload,
@@ -53,7 +53,8 @@ export const useManualBalancesStore = defineStore('balances/manual', () => {
       let convertedValue: BigNumber;
       if (mainCurrency === perLocationBalance.asset)
         convertedValue = perLocationBalance.amount;
-      else convertedValue = perLocationBalance.usdValue.multipliedBy(currentExchangeRate);
+      else
+        convertedValue = perLocationBalance.value.multipliedBy(currentExchangeRate);
 
       // to avoid double-conversion, we take as usdValue the amount property when the original asset type and
       // user's main currency coincide
@@ -102,7 +103,7 @@ export const useManualBalancesStore = defineStore('balances/manual', () => {
         address: '',
         location: balance.location,
         amount: balance.amount,
-        usdValue: balance.usdValue,
+        value: balance.value,
         tags: balance.tags ?? undefined,
       });
     }
@@ -112,8 +113,8 @@ export const useManualBalancesStore = defineStore('balances/manual', () => {
   const assetBreakdown = (asset: string): ComputedRef<AssetBreakdown[]> => getBreakdown(asset);
   const liabilityBreakdown = (asset: string): ComputedRef<AssetBreakdown[]> => getBreakdown(asset, true);
 
-  const getLocationBreakdown = (id: string): ComputedRef<AssetBalances> => computed<AssetBalances>(() => {
-    const assets: AssetBalances = {};
+  const getLocationBreakdown = (id: string): ComputedRef<Record<string, AssetBalance>> => computed<Record<string, AssetBalance>>(() => {
+    const assets: Record<string, AssetBalance> = {};
     const balances = get(manualBalances);
     for (const balance of balances) {
       if (balance.location !== id)
@@ -242,8 +243,8 @@ export const useManualBalancesStore = defineStore('balances/manual', () => {
 
       return {
         ...item,
-        usdValue: item.amount.times(assetPrice.value),
-      };
+        value: item.amount.times(assetPrice.value),
+      } satisfies ManualBalanceWithValue;
     });
 
     set(manualBalancesData, newManualBalancesData);

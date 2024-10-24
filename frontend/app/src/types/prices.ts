@@ -64,7 +64,7 @@ export interface HistoricPricesPayload {
   readonly targetAsset: string;
 }
 
-export interface AssetPriceInfo extends Balance {
+export interface BalanceWithPrice extends Balance {
   readonly price: BigNumber;
 }
 
