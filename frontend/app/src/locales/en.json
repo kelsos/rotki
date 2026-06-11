@@ -5619,11 +5619,13 @@
   "task_center": {
     "activity": {
       "exchange_events": "Querying exchange events",
+      "protocol_cache": "Updating protocol cache",
       "tx_decoding": "Decoding transactions",
       "tx_sync": "Syncing transactions"
     },
     "group": {
       "exchange_events": "Exchange events",
+      "protocol_cache": "Protocol cache",
       "tx_decoding": "Transaction decoding",
       "tx_sync": "Transaction sync"
     }
