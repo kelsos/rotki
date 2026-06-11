@@ -5620,18 +5620,22 @@
     "activity": {
       "background_task": "Background task",
       "blockchain_balances": "Querying blockchain balances",
+      "csv_import": "Importing CSV data",
       "exchange_balances": "Querying exchange balances",
       "exchange_events": "Querying exchange events",
       "historical_balances": "Processing historical balances",
       "pnl_report": "Generating profit and loss report",
       "prices": "Fetching historical prices",
       "protocol_cache": "Updating protocol cache",
+      "repulling": "Re-pulling transactions",
+      "staking": "Querying staking",
       "token_detection": "Detecting tokens",
       "tx_decoding": "Decoding transactions",
       "tx_sync": "Syncing transactions"
     },
     "group": {
       "blockchain_balances": "Blockchain balances",
+      "csv_import": "CSV import",
       "exchange_balances": "Exchange balances",
       "exchange_events": "Exchange events",
       "historical_balances": "Historical balances",
@@ -5639,6 +5643,8 @@
       "pnl_report": "Profit and loss report",
       "prices": "Prices",
       "protocol_cache": "Protocol cache",
+      "repulling": "Re-pulling transactions",
+      "staking": "Staking",
       "token_detection": "Token detection",
       "tx_decoding": "Transaction decoding",
       "tx_sync": "Transaction sync"

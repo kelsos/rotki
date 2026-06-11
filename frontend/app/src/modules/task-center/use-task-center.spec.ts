@@ -166,10 +166,19 @@ describe('useTaskCenter', () => {
     expect(model.current?.kind).toBe(ActivityKind.PNL_REPORT);
   });
 
-  it('should surface exchange-balance tasks with their own kind, not the floor', async () => {
-    data.tasks = [{ id: 4, meta: { title: 'Querying kraken' }, time: 1000, type: TaskType.QUERY_EXCHANGE_BALANCES }];
+  it('should surface task-kinded tasks (exchange balances, repulling, CSV import) with their own kind, not the floor', async () => {
+    data.tasks = [
+      { id: 4, meta: { title: 'Querying kraken' }, time: 1000, type: TaskType.QUERY_EXCHANGE_BALANCES },
+      { id: 5, meta: { title: 'Re-pulling' }, time: 2000, type: TaskType.REPULLING_TXS },
+      { id: 6, meta: { title: 'Importing' }, time: 3000, type: TaskType.IMPORT_CSV },
+    ];
     const model = await buildModel();
-    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.EXCHANGE_BALANCES]);
+    expect(model.groups.map(g => g.kind)).toStrictEqual([
+      ActivityKind.EXCHANGE_BALANCES,
+      ActivityKind.REPULLING,
+      ActivityKind.CSV_IMPORT,
+    ]);
+    expect(model.groups.some(g => g.kind === ActivityKind.OTHER)).toBe(false);
   });
 
   it('should surface refresh-state pending accounts as pending tx-sync activities', async () => {

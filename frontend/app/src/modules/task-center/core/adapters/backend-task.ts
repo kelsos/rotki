@@ -2,11 +2,12 @@ import type { Task, TaskMeta } from '@/modules/core/tasks/types';
 import { TaskType } from '@/modules/core/tasks/task-type';
 import { INDETERMINATE } from '../status';
 import { type Activity, ActivityKind, ActivitySourceType, ActivityStatus, makeActivityId, type TranslateFn } from '../types';
+import { TASK_KINDED_TYPES } from './task-kinded';
 
 /**
- * Task types already surfaced by a dedicated, richer adapter. The floor skips these
- * so the same work is not shown twice. As specialized adapters land (balances,
- * prices, …) their task types are added here.
+ * Task types already surfaced by a dedicated, richer (store-backed) adapter. The floor
+ * skips these so the same work is not shown twice. Task-only kinds (exchange balances,
+ * repulling, CSV import) are excluded separately via {@link TASK_KINDED_TYPES}.
  */
 const COVERED_TASK_TYPES: ReadonlySet<TaskType> = new Set([
   TaskType.TX,
@@ -15,7 +16,6 @@ const COVERED_TASK_TYPES: ReadonlySet<TaskType> = new Set([
   TaskType.QUERY_EXCHANGE_EVENTS,
   TaskType.QUERY_ONLINE_EVENTS,
   TaskType.QUERY_BLOCKCHAIN_BALANCES,
-  TaskType.QUERY_EXCHANGE_BALANCES,
   TaskType.FETCH_DETECTED_TOKENS,
   TaskType.PROCESS_HISTORICAL_BALANCES,
   TaskType.QUERY_HISTORICAL_BALANCE_SERIES,
@@ -31,7 +31,7 @@ const COVERED_TASK_TYPES: ReadonlySet<TaskType> = new Set([
  */
 export function backendTaskActivities(tasks: Task<TaskMeta>[], t: TranslateFn): Activity[] {
   return tasks
-    .filter(task => !COVERED_TASK_TYPES.has(task.type))
+    .filter(task => !COVERED_TASK_TYPES.has(task.type) && !TASK_KINDED_TYPES.has(task.type))
     .map(task => ({
       cancellable: true,
       id: makeActivityId(ActivityKind.OTHER, task.id),

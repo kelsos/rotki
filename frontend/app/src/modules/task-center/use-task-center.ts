@@ -10,13 +10,13 @@ import {
   backendTaskActivities,
   balanceActivities,
   decodingActivities,
-  exchangeBalanceActivities,
   exchangeEventsActivities,
   historicalBalanceActivities,
   pendingRefreshActivities,
   pnlReportActivities,
   priceActivities,
   protocolCacheActivities,
+  taskKindedActivities,
   txSyncActivities,
 } from './core/adapters';
 import { assembleActivityModel } from './core/assemble';
@@ -50,7 +50,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
 
   // One computed per source (perf): only the changed source's Activity[] recomputes.
   const balances = computed<Activity[]>(() => balanceActivities(get(queueItems), translate));
-  const exchangeBalances = computed<Activity[]>(() => exchangeBalanceActivities(taskStore.tasks, translate));
+  const taskKinded = computed<Activity[]>(() => taskKindedActivities(taskStore.tasks, translate));
   const txSync = computed<Activity[]>(() => txSyncActivities(get(chains), translate));
   const decode = computed<Activity[]>(() => decodingActivities(get(decoding), translate));
   const events = computed<Activity[]>(() => exchangeEventsActivities(get(locations), translate));
@@ -64,7 +64,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const model = computed<ActivityModel>(() => assembleActivityModel(
     [
       get(balances),
-      get(exchangeBalances),
+      get(taskKinded),
       get(txSync),
       get(decode),
       get(events),
