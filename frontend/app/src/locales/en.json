@@ -5651,6 +5651,19 @@
     },
     "indicator": {
       "working": "Working…"
+    },
+    "panel": {
+      "close": "Close",
+      "empty": "No active tasks",
+      "empty_subtitle": "Background activity will appear here while it runs.",
+      "title": "Tasks"
+    },
+    "status": {
+      "cancelled": "Cancelled",
+      "complete": "Complete",
+      "failed": "Failed",
+      "pending": "Pending",
+      "running": "Running"
     }
   },
   "task_manager": {
