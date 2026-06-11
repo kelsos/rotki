@@ -5616,6 +5616,14 @@
     },
     "title": "Tag Manager"
   },
+  "task_center": {
+    "activity": {
+      "tx_decoding": "Decoding transactions"
+    },
+    "group": {
+      "tx_decoding": "Transaction decoding"
+    }
+  },
   "task_manager": {
     "error": "An error occurred while processing task [{taskId}] '{title}': {error}"
   },

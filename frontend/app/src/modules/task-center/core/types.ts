@@ -2,6 +2,12 @@ import type { TaskType } from '@/modules/core/tasks/task-type';
 import { type Brand, make } from 'plainfp/brand';
 
 /**
+ * Injected translator. Adapters stay pure (no `useI18n`) by receiving this; the
+ * reactive shell passes the real `t`, specs pass a fake one.
+ */
+export type TranslateFn = (key: string, params?: Record<string, unknown>) => string;
+
+/**
  * Deterministic identity for an activity. Always derived from its source
  * (`${kind}:${sourceKey}`), never random — see {@link makeActivityId}. A stable id
  * keeps Vue `:key`s stable across re-renders, makes deduplication free (same work →
