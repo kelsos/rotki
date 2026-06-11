@@ -49,6 +49,8 @@ function groupTitle(kind: ActivityKind, activities: Activity[], t: TranslateFn):
     return t('task_center.group.tx_sync');
   if (kind === Kind.TX_DECODING)
     return t('task_center.group.tx_decoding');
+  if (kind === Kind.EXCHANGE_EVENTS)
+    return t('task_center.group.exchange_events');
 
   return activities[0]?.title ?? kind;
 }
