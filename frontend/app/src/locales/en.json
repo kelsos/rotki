@@ -5648,6 +5648,9 @@
       "token_detection": "Token detection",
       "tx_decoding": "Transaction decoding",
       "tx_sync": "Transaction sync"
+    },
+    "indicator": {
+      "working": "Working…"
     }
   },
   "task_manager": {

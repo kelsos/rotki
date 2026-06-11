@@ -9,13 +9,14 @@ import { useSyncProgress } from '@/modules/shell/sync-progress/use-sync-progress
 import { useLiquityStore } from '@/modules/staking/liquity/use-liquity-store';
 import { assembleActivityModel } from './core/assemble';
 import { ACTIVITY_ADAPTERS, type SourceContext } from './core/registry';
-import { type Activity, type ActivityModel, ActivityPhase, type TranslateFn } from './core/types';
+import { type Activity, type ActivityModel, type ActivityOverall, ActivityPhase, type TranslateFn } from './core/types';
 
 interface UseTaskCenterReturn {
   model: ComputedRef<ActivityModel>;
   active: ComputedRef<Activity[]>;
   pending: ComputedRef<Activity[]>;
   current: ComputedRef<Activity | undefined>;
+  overall: ComputedRef<ActivityOverall>;
   isActive: ComputedRef<boolean>;
 }
 
@@ -63,7 +64,8 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const active = computed<Activity[]>(() => get(model).active);
   const pending = computed<Activity[]>(() => get(model).pending);
   const current = computed<Activity | undefined>(() => get(model).current);
+  const overall = computed<ActivityOverall>(() => get(model).overall);
   const isActive = computed<boolean>(() => get(model).overall.phase !== ActivityPhase.IDLE);
 
-  return { active, current, isActive, model, pending };
+  return { active, current, isActive, model, overall, pending };
 });
