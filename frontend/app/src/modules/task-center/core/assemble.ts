@@ -1,5 +1,5 @@
-import { INDETERMINATE, rollupPercentage, rollupStatus } from './status';
-import { type Activity, type ActivityGroup, type ActivityKind, type ActivityModel, type ActivityPhase, ActivityStatus, ActivityKind as Kind, ActivityPhase as Phase, type TranslateFn } from './types';
+import { INDETERMINATE, rollupPercentage, rollupStatus, statusRank } from './status';
+import { type Activity, type ActivityGroup, type ActivityId, type ActivityKind, type ActivityModel, type ActivityPhase, ActivityStatus, ActivityKind as Kind, ActivityPhase as Phase, type TranslateFn } from './types';
 
 /**
  * Display + selection priority for kinds (highest first). Drives group ordering and
@@ -85,14 +85,32 @@ function phaseOf(activities: Activity[]): ActivityPhase {
 }
 
 /**
- * Pure assembly of the flat activity list into the render model: groups (ordered by
- * kind priority), the active/pending splits, the overall rollup + phase, and the
- * single `current` activity the header bar labels. No Vue, no stores — unit-tested
- * with literal inputs.
+ * Collapses activities that share an id (the same work surfaced by two adapters) to a
+ * single entry, keeping the most-live status (see {@link statusRank}). Deterministic
+ * ids make this exact: e.g. a refresh-state PENDING account and the same account once
+ * it starts syncing resolve to one RUNNING activity.
+ */
+function dedupeById(activities: Activity[]): Activity[] {
+  const byId = new Map<ActivityId, Activity>();
+  for (const activity of activities) {
+    const existing = byId.get(activity.id);
+    if (!existing || statusRank(activity.status) < statusRank(existing.status))
+      byId.set(activity.id, activity);
+  }
+  return [...byId.values()];
+}
+
+/**
+ * Pure assembly of the flat activity list into the render model: dedup by id, groups
+ * (ordered by kind priority), the active/pending splits, the overall rollup + phase,
+ * and the single `current` activity the header bar labels. No Vue, no stores —
+ * unit-tested with literal inputs.
  */
 export function assembleActivityModel(activities: Activity[], t: TranslateFn): ActivityModel {
+  const deduped = dedupeById(activities);
+
   const byKind = new Map<ActivityKind, Activity[]>();
-  for (const activity of activities) {
+  for (const activity of deduped) {
     const bucket = byKind.get(activity.kind) ?? [];
     bucket.push(activity);
     byKind.set(activity.kind, bucket);
@@ -102,7 +120,7 @@ export function assembleActivityModel(activities: Activity[], t: TranslateFn): A
     .map(([kind, group]) => toGroup(kind, group, t))
     .sort((a, b) => kindRank(a.kind) - kindRank(b.kind));
 
-  const ordered = [...activities].sort(compareActivities);
+  const ordered = [...deduped].sort(compareActivities);
   const active = ordered.filter(a => a.status === ActivityStatus.RUNNING);
   const pending = ordered.filter(a => a.status === ActivityStatus.PENDING);
 

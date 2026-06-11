@@ -16,6 +16,7 @@ interface MockData {
   historical: HistoricalBalanceProcessingData | undefined;
   prices: CommonQueryStatusData | undefined;
   pnl: PnlReportProgress;
+  pendingKeys: Set<string>;
   locations: LocationProgress[];
   protocolCache: ProtocolCacheProgress[];
   tasks: Task<TaskMeta>[];
@@ -35,6 +36,7 @@ const data = vi.hoisted((): MockData => ({
   historical: undefined,
   prices: undefined,
   pnl: { processingState: '', totalProgress: '' },
+  pendingKeys: new Set<string>(),
   locations: [],
   protocolCache: [],
   tasks: [],
@@ -85,6 +87,14 @@ vi.mock('@/modules/reports/use-reports-store', () => ({
   }),
 }));
 
+vi.mock('@/modules/history/use-history-refresh-state-store', () => ({
+  useHistoryRefreshStateStore: (): { pendingKeys: Set<string> } => ({
+    get pendingKeys(): Set<string> {
+      return data.pendingKeys;
+    },
+  }),
+}));
+
 vi.mock('@/modules/core/tasks/use-task-store', () => ({
   useTaskStore: (): { tasks: Task<TaskMeta>[] } => ({
     get tasks(): Task<TaskMeta>[] {
@@ -107,6 +117,7 @@ describe('useTaskCenter', () => {
     data.historical = undefined;
     data.prices = undefined;
     data.pnl = { processingState: '', totalProgress: '' };
+    data.pendingKeys = new Set<string>();
     data.locations = [];
     data.protocolCache = [];
     data.tasks = [];
@@ -159,6 +170,31 @@ describe('useTaskCenter', () => {
     data.tasks = [{ id: 4, meta: { title: 'Querying kraken' }, time: 1000, type: TaskType.QUERY_EXCHANGE_BALANCES }];
     const model = await buildModel();
     expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.EXCHANGE_BALANCES]);
+  });
+
+  it('should surface refresh-state pending accounts as pending tx-sync activities', async () => {
+    data.pendingKeys = new Set(['blockchain:eth:0xabc']);
+    const model = await buildModel();
+    expect(model.pending.map(a => a.id)).toStrictEqual(['tx-sync:eth:0xabc']);
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.TX_SYNC]);
+  });
+
+  it('should merge a pending account with its running sync into one running activity', async () => {
+    data.pendingKeys = new Set(['blockchain:eth:0xabc']);
+    data.chains = [{
+      addresses: [{ address: '0xabc', status: AddressStatus.QUERYING, subtype: AddressSubtype.EVM }],
+      cancelled: 0,
+      chain: 'eth',
+      completed: 0,
+      inProgress: 1,
+      pending: 0,
+      progress: 0,
+      total: 1,
+    }];
+    const model = await buildModel();
+    expect(model.groups[0].activities).toHaveLength(1);
+    expect(model.pending).toStrictEqual([]);
+    expect(model.active.map(a => a.id)).toStrictEqual(['tx-sync:eth:0xabc']);
   });
 
   it('should surface uncovered backend tasks through the floor adapter', async () => {

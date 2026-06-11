@@ -3,6 +3,23 @@ import { type ActivityStatus, ActivityStatus as Status } from './types';
 /** Sentinel percentage for work whose completion cannot be quantified. */
 export const INDETERMINATE = -1;
 
+/**
+ * Precedence for deduplicating activities that share an id (the same work surfaced by
+ * two adapters — e.g. a refresh-state pending account that later starts syncing). Lower
+ * wins: a live RUNNING/PENDING activity is kept over a terminal one.
+ */
+const STATUS_RANK: Record<ActivityStatus, number> = {
+  [Status.RUNNING]: 0,
+  [Status.PENDING]: 1,
+  [Status.FAILED]: 2,
+  [Status.CANCELLED]: 3,
+  [Status.COMPLETE]: 4,
+};
+
+export function statusRank(status: ActivityStatus): number {
+  return STATUS_RANK[status];
+}
+
 /** True for statuses that represent finished work (no further progress expected). */
 export function isTerminalStatus(status: ActivityStatus): boolean {
   return status === Status.COMPLETE || status === Status.CANCELLED || status === Status.FAILED;

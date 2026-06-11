@@ -76,6 +76,17 @@ describe('assembleActivityModel', () => {
     expect(model.active).toStrictEqual([]);
   });
 
+  it('should dedupe activities sharing an id, keeping the most-live status', () => {
+    const model = assembleActivityModel([
+      activity(Kind.TX_SYNC, 'eth:0xabc', { status: ActivityStatus.PENDING }),
+      activity(Kind.TX_SYNC, 'eth:0xabc', { status: ActivityStatus.RUNNING }),
+    ], t);
+    expect(model.groups[0].activities).toHaveLength(1);
+    expect(model.groups[0].activities[0].status).toBe(ActivityStatus.RUNNING);
+    expect(model.active).toHaveLength(1);
+    expect(model.pending).toStrictEqual([]);
+  });
+
   it('should split active and pending activities', () => {
     const model = assembleActivityModel([
       activity(Kind.TX_DECODING, 'eth', { status: ActivityStatus.RUNNING }),
