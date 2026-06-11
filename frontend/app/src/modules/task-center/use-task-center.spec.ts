@@ -1,0 +1,111 @@
+import type { Ref } from 'vue';
+import type { Task, TaskMeta } from '@/modules/core/tasks/types';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { TaskType } from '@/modules/core/tasks/task-type';
+import { AddressStatus, AddressSubtype, type ChainProgress, type DecodingProgress, type LocationProgress, type ProtocolCacheProgress } from '@/modules/shell/sync-progress/types';
+import { ActivityKind, type ActivityModel, ActivityPhase } from './core/types';
+
+interface MockData {
+  chains: ChainProgress[];
+  decoding: DecodingProgress[];
+  locations: LocationProgress[];
+  protocolCache: ProtocolCacheProgress[];
+  tasks: Task<TaskMeta>[];
+}
+
+interface SyncProgressSources {
+  chains: Ref<ChainProgress[]>;
+  decoding: Ref<DecodingProgress[]>;
+  locations: Ref<LocationProgress[]>;
+  protocolCache: Ref<ProtocolCacheProgress[]>;
+}
+
+const data = vi.hoisted((): MockData => ({
+  chains: [],
+  decoding: [],
+  locations: [],
+  protocolCache: [],
+  tasks: [],
+}));
+
+vi.mock('@/modules/shell/sync-progress/use-sync-progress', async () => {
+  const { ref } = await import('vue');
+  return {
+    useSyncProgress: (): SyncProgressSources => ({
+      chains: ref(data.chains),
+      decoding: ref(data.decoding),
+      locations: ref(data.locations),
+      protocolCache: ref(data.protocolCache),
+    }),
+  };
+});
+
+vi.mock('@/modules/core/tasks/use-task-store', () => ({
+  useTaskStore: (): { tasks: Task<TaskMeta>[] } => ({
+    get tasks(): Task<TaskMeta>[] {
+      return data.tasks;
+    },
+  }),
+}));
+
+async function buildModel(): Promise<ActivityModel> {
+  vi.resetModules();
+  const { useTaskCenter } = await import('./use-task-center');
+  return get(useTaskCenter().model);
+}
+
+describe('useTaskCenter', () => {
+  beforeEach(() => {
+    data.chains = [];
+    data.decoding = [];
+    data.locations = [];
+    data.protocolCache = [];
+    data.tasks = [];
+  });
+
+  it('should be idle with no current activity when nothing is happening', async () => {
+    const model = await buildModel();
+    expect(model.overall.phase).toBe(ActivityPhase.IDLE);
+    expect(model.current).toBeUndefined();
+    expect(model.groups).toStrictEqual([]);
+  });
+
+  it('should surface a running decoding activity from the sync source', async () => {
+    data.decoding = [{ cancelled: false, chain: 'eth', processed: 5, progress: 50, total: 10 }];
+    const model = await buildModel();
+    expect(model.overall.phase).toBe(ActivityPhase.WORKING);
+    expect(model.current?.kind).toBe(ActivityKind.TX_DECODING);
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.TX_DECODING]);
+  });
+
+  it('should surface uncovered backend tasks through the floor adapter', async () => {
+    data.tasks = [{ id: 3, meta: { title: 'Fetching NFTs' }, time: 1000, type: TaskType.FETCH_NFTS }];
+    const model = await buildModel();
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.OTHER]);
+    expect(model.active[0].title).toBe('Fetching NFTs');
+  });
+
+  it('should exclude backend tasks already covered by a richer adapter', async () => {
+    data.tasks = [{ id: 1, meta: { title: 'tx' }, time: 1000, type: TaskType.TX }];
+    const model = await buildModel();
+    expect(model.groups).toStrictEqual([]);
+    expect(model.overall.phase).toBe(ActivityPhase.IDLE);
+  });
+
+  it('should order balances before decoding and pick the highest-priority current', async () => {
+    data.chains = [{
+      addresses: [{ address: '0xabc', status: AddressStatus.QUERYING, subtype: AddressSubtype.EVM }],
+      cancelled: 0,
+      chain: 'eth',
+      completed: 0,
+      inProgress: 1,
+      pending: 0,
+      progress: 0,
+      total: 1,
+    }];
+    data.decoding = [{ cancelled: false, chain: 'eth', processed: 5, progress: 50, total: 10 }];
+    const model = await buildModel();
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.TX_SYNC, ActivityKind.TX_DECODING]);
+    expect(model.current?.kind).toBe(ActivityKind.TX_SYNC);
+  });
+});
