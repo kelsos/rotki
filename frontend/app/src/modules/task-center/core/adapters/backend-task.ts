@@ -21,6 +21,7 @@ const COVERED_TASK_TYPES: ReadonlySet<TaskType> = new Set([
   TaskType.QUERY_HISTORICAL_BALANCE_SERIES,
   TaskType.FETCH_DAILY_HISTORIC_PRICE,
   TaskType.TRADE_HISTORY,
+  TaskType.LIQUITY_STAKING,
 ]);
 
 /**

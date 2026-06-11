@@ -6,6 +6,7 @@ import { useHistoricalBalancesStore } from '@/modules/history/balances/use-histo
 import { useHistoryRefreshStateStore } from '@/modules/history/use-history-refresh-state-store';
 import { useReportsStore } from '@/modules/reports/use-reports-store';
 import { useSyncProgress } from '@/modules/shell/sync-progress/use-sync-progress';
+import { useLiquityStore } from '@/modules/staking/liquity/use-liquity-store';
 import {
   backendTaskActivities,
   balanceActivities,
@@ -16,6 +17,7 @@ import {
   pnlReportActivities,
   priceActivities,
   protocolCacheActivities,
+  stakingActivities,
   taskKindedActivities,
   txSyncActivities,
 } from './core/adapters';
@@ -46,6 +48,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const priceStore = useHistoricCachePriceStore();
   const reportsStore = useReportsStore();
   const refreshStore = useHistoryRefreshStateStore();
+  const liquityStore = useLiquityStore();
   const taskStore = useTaskStore();
 
   // One computed per source (perf): only the changed source's Activity[] recomputes.
@@ -58,6 +61,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const historical = computed<Activity[]>(() => historicalBalanceActivities(historicalStore.processingProgress, translate));
   const prices = computed<Activity[]>(() => priceActivities(priceStore.historicalDailyPriceStatus, translate));
   const pnl = computed<Activity[]>(() => pnlReportActivities(reportsStore.reportProgress, translate));
+  const staking = computed<Activity[]>(() => stakingActivities(liquityStore.stakingQueryStatus, translate));
   const pendingRefresh = computed<Activity[]>(() => pendingRefreshActivities([...refreshStore.pendingKeys], translate));
   const backend = computed<Activity[]>(() => backendTaskActivities(taskStore.tasks, translate));
 
@@ -72,6 +76,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
       get(historical),
       get(prices),
       get(pnl),
+      get(staking),
       get(pendingRefresh),
       get(backend),
     ].flat(),

@@ -16,6 +16,8 @@ export { priceActivities } from './prices';
 
 export { protocolCacheActivities } from './protocol-cache';
 
+export { stakingActivities } from './staking';
+
 export { taskKindedActivities } from './task-kinded';
 
 export { txSyncActivities } from './tx-sync';

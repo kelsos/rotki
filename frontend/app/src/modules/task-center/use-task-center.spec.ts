@@ -16,6 +16,7 @@ interface MockData {
   historical: HistoricalBalanceProcessingData | undefined;
   prices: CommonQueryStatusData | undefined;
   pnl: PnlReportProgress;
+  staking: CommonQueryStatusData | undefined;
   pendingKeys: Set<string>;
   locations: LocationProgress[];
   protocolCache: ProtocolCacheProgress[];
@@ -36,6 +37,7 @@ const data = vi.hoisted((): MockData => ({
   historical: undefined,
   prices: undefined,
   pnl: { processingState: '', totalProgress: '' },
+  staking: undefined,
   pendingKeys: new Set<string>(),
   locations: [],
   protocolCache: [],
@@ -87,6 +89,14 @@ vi.mock('@/modules/reports/use-reports-store', () => ({
   }),
 }));
 
+vi.mock('@/modules/staking/liquity/use-liquity-store', () => ({
+  useLiquityStore: (): { stakingQueryStatus: CommonQueryStatusData | undefined } => ({
+    get stakingQueryStatus(): CommonQueryStatusData | undefined {
+      return data.staking;
+    },
+  }),
+}));
+
 vi.mock('@/modules/history/use-history-refresh-state-store', () => ({
   useHistoryRefreshStateStore: (): { pendingKeys: Set<string> } => ({
     get pendingKeys(): Set<string> {
@@ -117,6 +127,7 @@ describe('useTaskCenter', () => {
     data.historical = undefined;
     data.prices = undefined;
     data.pnl = { processingState: '', totalProgress: '' };
+    data.staking = undefined;
     data.pendingKeys = new Set<string>();
     data.locations = [];
     data.protocolCache = [];
@@ -204,6 +215,12 @@ describe('useTaskCenter', () => {
     expect(model.groups[0].activities).toHaveLength(1);
     expect(model.pending).toStrictEqual([]);
     expect(model.active.map(a => a.id)).toStrictEqual(['tx-sync:eth:0xabc']);
+  });
+
+  it('should surface staking query progress from the liquity store', async () => {
+    data.staking = { processed: 1, total: 3 };
+    const model = await buildModel();
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.STAKING]);
   });
 
   it('should surface uncovered backend tasks through the floor adapter', async () => {
