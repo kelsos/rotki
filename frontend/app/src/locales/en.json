@@ -5618,6 +5618,7 @@
   },
   "task_center": {
     "activity": {
+      "background_task": "Background task",
       "exchange_events": "Querying exchange events",
       "protocol_cache": "Updating protocol cache",
       "tx_decoding": "Decoding transactions",
@@ -5625,6 +5626,7 @@
     },
     "group": {
       "exchange_events": "Exchange events",
+      "other": "Other tasks",
       "protocol_cache": "Protocol cache",
       "tx_decoding": "Transaction decoding",
       "tx_sync": "Transaction sync"

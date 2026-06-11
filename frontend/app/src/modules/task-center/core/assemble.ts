@@ -53,6 +53,8 @@ function groupTitle(kind: ActivityKind, activities: Activity[], t: TranslateFn):
     return t('task_center.group.exchange_events');
   if (kind === Kind.PROTOCOL_CACHE)
     return t('task_center.group.protocol_cache');
+  if (kind === Kind.OTHER)
+    return t('task_center.group.other');
 
   return activities[0]?.title ?? kind;
 }
