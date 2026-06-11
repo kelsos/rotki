@@ -155,6 +155,12 @@ describe('useTaskCenter', () => {
     expect(model.current?.kind).toBe(ActivityKind.PNL_REPORT);
   });
 
+  it('should surface exchange-balance tasks with their own kind, not the floor', async () => {
+    data.tasks = [{ id: 4, meta: { title: 'Querying kraken' }, time: 1000, type: TaskType.QUERY_EXCHANGE_BALANCES }];
+    const model = await buildModel();
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.EXCHANGE_BALANCES]);
+  });
+
   it('should surface uncovered backend tasks through the floor adapter', async () => {
     data.tasks = [{ id: 3, meta: { title: 'Fetching NFTs' }, time: 1000, type: TaskType.FETCH_NFTS }];
     const model = await buildModel();

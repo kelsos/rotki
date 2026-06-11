@@ -5620,6 +5620,7 @@
     "activity": {
       "background_task": "Background task",
       "blockchain_balances": "Querying blockchain balances",
+      "exchange_balances": "Querying exchange balances",
       "exchange_events": "Querying exchange events",
       "historical_balances": "Processing historical balances",
       "pnl_report": "Generating profit and loss report",
@@ -5631,6 +5632,7 @@
     },
     "group": {
       "blockchain_balances": "Blockchain balances",
+      "exchange_balances": "Exchange balances",
       "exchange_events": "Exchange events",
       "historical_balances": "Historical balances",
       "other": "Other tasks",

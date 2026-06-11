@@ -48,6 +48,7 @@ function compareActivities(a: Activity, b: Activity): number {
  */
 const GROUP_TITLE: Partial<Record<ActivityKind, (t: TranslateFn) => string>> = {
   [Kind.BLOCKCHAIN_BALANCES]: t => t('task_center.group.blockchain_balances'),
+  [Kind.EXCHANGE_BALANCES]: t => t('task_center.group.exchange_balances'),
   [Kind.EXCHANGE_EVENTS]: t => t('task_center.group.exchange_events'),
   [Kind.HISTORICAL_BALANCES]: t => t('task_center.group.historical_balances'),
   [Kind.OTHER]: t => t('task_center.group.other'),

@@ -8,6 +8,7 @@ import { useSyncProgress } from '@/modules/shell/sync-progress/use-sync-progress
 import { backendTaskActivities } from './core/adapters/backend-task';
 import { balanceActivities } from './core/adapters/balances';
 import { decodingActivities } from './core/adapters/decoding';
+import { exchangeBalanceActivities } from './core/adapters/exchange-balances';
 import { exchangeEventsActivities } from './core/adapters/exchange-events';
 import { historicalBalanceActivities } from './core/adapters/historical-balances';
 import { pnlReportActivities } from './core/adapters/pnl-report';
@@ -44,6 +45,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
 
   // One computed per source (perf): only the changed source's Activity[] recomputes.
   const balances = computed<Activity[]>(() => balanceActivities(get(queueItems), translate));
+  const exchangeBalances = computed<Activity[]>(() => exchangeBalanceActivities(taskStore.tasks, translate));
   const txSync = computed<Activity[]>(() => txSyncActivities(get(chains), translate));
   const decode = computed<Activity[]>(() => decodingActivities(get(decoding), translate));
   const events = computed<Activity[]>(() => exchangeEventsActivities(get(locations), translate));
@@ -54,7 +56,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const backend = computed<Activity[]>(() => backendTaskActivities(taskStore.tasks, translate));
 
   const model = computed<ActivityModel>(() => assembleActivityModel(
-    [get(balances), get(txSync), get(decode), get(events), get(protocol), get(historical), get(prices), get(pnl), get(backend)].flat(),
+    [get(balances), get(exchangeBalances), get(txSync), get(decode), get(events), get(protocol), get(historical), get(prices), get(pnl), get(backend)].flat(),
     translate,
   ));
 
