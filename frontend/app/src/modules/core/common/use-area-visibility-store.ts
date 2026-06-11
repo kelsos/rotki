@@ -10,6 +10,7 @@ export const useAreaVisibilityStore = defineStore('session/visibility', () => {
   const showHelpBar = ref<boolean>(false);
   const showNotesSidebar = ref<boolean>(false);
   const showPinned = ref<boolean>(false);
+  const showTaskCenter = ref<boolean>(false);
   const showPrivacyModeMenu = ref<boolean>(false);
   const pinnedWidth = ref<number>(PINNED_DEFAULT_WIDTH);
   const pinnedDragging = ref<boolean>(false);
@@ -41,6 +42,7 @@ export const useAreaVisibilityStore = defineStore('session/visibility', () => {
     showNotificationBar,
     showPinned,
     showPrivacyModeMenu,
+    showTaskCenter,
     toggleDrawer,
   };
 });

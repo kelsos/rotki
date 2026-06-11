@@ -13,6 +13,8 @@ import NotificationIndicator from '@/modules/shell/components/NotificationIndica
 import UserDropdown from '@/modules/shell/components/UserDropdown.vue';
 import SyncIndicator from '@/modules/shell/sync-progress/SyncIndicator.vue';
 import ThemeControl from '@/modules/shell/theme/ThemeControl.vue';
+import { isTaskCenterEnabled } from '@/modules/task-center/feature-flag';
+import TaskCenterIndicator from '@/modules/task-center/ui/TaskCenterIndicator.vue';
 
 const isDevelopment = checkIfDevelopment();
 const isDemoMode = import.meta.env.VITE_DEMO_MODE !== undefined;
@@ -20,12 +22,18 @@ const isDemoMode = import.meta.env.VITE_DEMO_MODE !== undefined;
 const { isSmAndUp } = useBreakpoint();
 
 const { isDark } = useRotkiTheme();
-const { showHelpBar, showNotesSidebar, showNotificationBar, showPinned } = storeToRefs(useAreaVisibilityStore());
+const { showHelpBar, showNotesSidebar, showNotificationBar, showPinned, showTaskCenter } = storeToRefs(useAreaVisibilityStore());
+
+const taskCenterEnabled = isTaskCenterEnabled();
 </script>
 
 <template>
   <div class="flex overflow-hidden grow items-center">
     <SyncIndicator />
+    <TaskCenterIndicator
+      v-if="taskCenterEnabled"
+      @click="showTaskCenter = !showTaskCenter"
+    />
     <BackButton />
   </div>
   <div class="flex overflow-hidden h-full items-center">
