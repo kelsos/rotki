@@ -1,3 +1,4 @@
+import type { CommonQueryStatusData } from '@rotki/common';
 import type { Ref } from 'vue';
 import type { HistoricalBalanceProcessingData } from '@/modules/core/messaging/types/status-types';
 import type { Task, TaskMeta } from '@/modules/core/tasks/types';
@@ -12,6 +13,7 @@ interface MockData {
   chains: ChainProgress[];
   decoding: DecodingProgress[];
   historical: HistoricalBalanceProcessingData | undefined;
+  prices: CommonQueryStatusData | undefined;
   locations: LocationProgress[];
   protocolCache: ProtocolCacheProgress[];
   tasks: Task<TaskMeta>[];
@@ -29,6 +31,7 @@ const data = vi.hoisted((): MockData => ({
   chains: [],
   decoding: [],
   historical: undefined,
+  prices: undefined,
   locations: [],
   protocolCache: [],
   tasks: [],
@@ -63,6 +66,14 @@ vi.mock('@/modules/history/balances/use-historical-balances-store', () => ({
   }),
 }));
 
+vi.mock('@/modules/assets/prices/use-historic-cache-price-store', () => ({
+  useHistoricCachePriceStore: (): { historicalDailyPriceStatus: CommonQueryStatusData | undefined } => ({
+    get historicalDailyPriceStatus(): CommonQueryStatusData | undefined {
+      return data.prices;
+    },
+  }),
+}));
+
 vi.mock('@/modules/core/tasks/use-task-store', () => ({
   useTaskStore: (): { tasks: Task<TaskMeta>[] } => ({
     get tasks(): Task<TaskMeta>[] {
@@ -83,6 +94,7 @@ describe('useTaskCenter', () => {
     data.chains = [];
     data.decoding = [];
     data.historical = undefined;
+    data.prices = undefined;
     data.locations = [];
     data.protocolCache = [];
     data.tasks = [];
@@ -116,6 +128,12 @@ describe('useTaskCenter', () => {
     const model = await buildModel();
     expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.HISTORICAL_BALANCES]);
     expect(model.current?.kind).toBe(ActivityKind.HISTORICAL_BALANCES);
+  });
+
+  it('should surface daily historic price querying from the price store', async () => {
+    data.prices = { processed: 1, total: 4 };
+    const model = await buildModel();
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.PRICES]);
   });
 
   it('should surface uncovered backend tasks through the floor adapter', async () => {
