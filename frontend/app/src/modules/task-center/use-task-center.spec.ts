@@ -1,6 +1,7 @@
 import type { CommonQueryStatusData } from '@rotki/common';
 import type { Ref } from 'vue';
 import type { PnlReportProgress } from './core/adapters/pnl-report';
+import type { StatsPriceQueryData } from '@/modules/core/messaging/types';
 import type { HistoricalBalanceProcessingData } from '@/modules/core/messaging/types/status-types';
 import type { Task, TaskMeta } from '@/modules/core/tasks/types';
 import type { BalanceQueryQueueItem } from '@/modules/dashboard/progress/types';
@@ -74,9 +75,19 @@ vi.mock('@/modules/history/balances/use-historical-balances-store', () => ({
 }));
 
 vi.mock('@/modules/assets/prices/use-historic-cache-price-store', () => ({
-  useHistoricCachePriceStore: (): { historicalDailyPriceStatus: CommonQueryStatusData | undefined } => ({
+  useHistoricCachePriceStore: (): {
+    historicalDailyPriceStatus: CommonQueryStatusData | undefined;
+    historicalPriceStatus: CommonQueryStatusData | undefined;
+    statsPriceQueryStatus: Record<string, StatsPriceQueryData>;
+  } => ({
     get historicalDailyPriceStatus(): CommonQueryStatusData | undefined {
       return data.prices;
+    },
+    get historicalPriceStatus(): CommonQueryStatusData | undefined {
+      return undefined;
+    },
+    get statsPriceQueryStatus(): Record<string, StatsPriceQueryData> {
+      return {};
     },
   }),
 }));

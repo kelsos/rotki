@@ -48,6 +48,7 @@ export const useHistoricCachePriceStore = defineStore('prices/historic-cache', (
     setHistoricalDailyPriceStatus,
     setHistoricalPriceStatus,
     setStatsPriceQueryStatus,
+    statsPriceQueryStatus,
   };
 });
 

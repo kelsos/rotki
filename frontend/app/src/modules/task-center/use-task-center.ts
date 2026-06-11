@@ -59,7 +59,11 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const events = computed<Activity[]>(() => exchangeEventsActivities(get(locations), translate));
   const protocol = computed<Activity[]>(() => protocolCacheActivities(get(protocolCache), translate));
   const historical = computed<Activity[]>(() => historicalBalanceActivities(historicalStore.processingProgress, translate));
-  const prices = computed<Activity[]>(() => priceActivities(priceStore.historicalDailyPriceStatus, translate));
+  const prices = computed<Activity[]>(() => priceActivities({
+    daily: priceStore.historicalDailyPriceStatus,
+    historical: priceStore.historicalPriceStatus,
+    stats: priceStore.statsPriceQueryStatus,
+  }, translate));
   const pnl = computed<Activity[]>(() => pnlReportActivities(reportsStore.reportProgress, translate));
   const staking = computed<Activity[]>(() => stakingActivities(liquityStore.stakingQueryStatus, translate));
   const pendingRefresh = computed<Activity[]>(() => pendingRefreshActivities([...refreshStore.pendingKeys], translate));
