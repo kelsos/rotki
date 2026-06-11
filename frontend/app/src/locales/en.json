@@ -5619,15 +5619,19 @@
   "task_center": {
     "activity": {
       "background_task": "Background task",
+      "blockchain_balances": "Querying blockchain balances",
       "exchange_events": "Querying exchange events",
       "protocol_cache": "Updating protocol cache",
+      "token_detection": "Detecting tokens",
       "tx_decoding": "Decoding transactions",
       "tx_sync": "Syncing transactions"
     },
     "group": {
+      "blockchain_balances": "Blockchain balances",
       "exchange_events": "Exchange events",
       "other": "Other tasks",
       "protocol_cache": "Protocol cache",
+      "token_detection": "Token detection",
       "tx_decoding": "Transaction decoding",
       "tx_sync": "Transaction sync"
     }

@@ -1,11 +1,13 @@
 import type { Ref } from 'vue';
 import type { Task, TaskMeta } from '@/modules/core/tasks/types';
+import type { BalanceQueryQueueItem } from '@/modules/dashboard/progress/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TaskType } from '@/modules/core/tasks/task-type';
 import { AddressStatus, AddressSubtype, type ChainProgress, type DecodingProgress, type LocationProgress, type ProtocolCacheProgress } from '@/modules/shell/sync-progress/types';
 import { ActivityKind, type ActivityModel, ActivityPhase } from './core/types';
 
 interface MockData {
+  balances: BalanceQueryQueueItem[];
   chains: ChainProgress[];
   decoding: DecodingProgress[];
   locations: LocationProgress[];
@@ -21,6 +23,7 @@ interface SyncProgressSources {
 }
 
 const data = vi.hoisted((): MockData => ({
+  balances: [],
   chains: [],
   decoding: [],
   locations: [],
@@ -36,6 +39,15 @@ vi.mock('@/modules/shell/sync-progress/use-sync-progress', async () => {
       decoding: ref(data.decoding),
       locations: ref(data.locations),
       protocolCache: ref(data.protocolCache),
+    }),
+  };
+});
+
+vi.mock('@/modules/balances/use-balance-queue', async () => {
+  const { ref } = await import('vue');
+  return {
+    useBalanceQueue: (): { queueItems: Ref<BalanceQueryQueueItem[]> } => ({
+      queueItems: ref(data.balances),
     }),
   };
 });
@@ -56,6 +68,7 @@ async function buildModel(): Promise<ActivityModel> {
 
 describe('useTaskCenter', () => {
   beforeEach(() => {
+    data.balances = [];
     data.chains = [];
     data.decoding = [];
     data.locations = [];
@@ -76,6 +89,14 @@ describe('useTaskCenter', () => {
     expect(model.overall.phase).toBe(ActivityPhase.WORKING);
     expect(model.current?.kind).toBe(ActivityKind.TX_DECODING);
     expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.TX_DECODING]);
+  });
+
+  it('should surface balance queue items and prioritise them as current', async () => {
+    data.balances = [{ addedAt: 1, chain: 'eth', id: 'eth', status: 'running', type: TaskType.QUERY_BLOCKCHAIN_BALANCES }];
+    data.decoding = [{ cancelled: false, chain: 'eth', processed: 5, progress: 50, total: 10 }];
+    const model = await buildModel();
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.BLOCKCHAIN_BALANCES, ActivityKind.TX_DECODING]);
+    expect(model.current?.kind).toBe(ActivityKind.BLOCKCHAIN_BALANCES);
   });
 
   it('should surface uncovered backend tasks through the floor adapter', async () => {

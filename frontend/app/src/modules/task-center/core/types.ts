@@ -65,6 +65,7 @@ export const ActivitySourceType = {
   DECODING: 'decoding',
   EXCHANGE_EVENTS: 'exchange-events',
   PROTOCOL_CACHE: 'protocol-cache',
+  BALANCE_QUERY: 'balance-query',
   BACKEND_TASK: 'backend-task',
   REQUEST_TAG: 'request-tag',
 } as const;
@@ -80,6 +81,7 @@ export type ActivitySource =
   | { type: typeof ActivitySourceType.DECODING; chain: string }
   | { type: typeof ActivitySourceType.EXCHANGE_EVENTS; location: string; name: string }
   | { type: typeof ActivitySourceType.PROTOCOL_CACHE; chain: string; protocol: string }
+  | { type: typeof ActivitySourceType.BALANCE_QUERY; taskType: TaskType; chain: string; address?: string }
   | { type: typeof ActivitySourceType.BACKEND_TASK; taskId: number; taskType: TaskType }
   | { type: typeof ActivitySourceType.REQUEST_TAG; tag: string };
 

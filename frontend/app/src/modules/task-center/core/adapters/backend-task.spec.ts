@@ -32,6 +32,8 @@ describe('backendTaskActivities', () => {
       task(1, TaskType.TX),
       task(2, TaskType.TRANSACTIONS_DECODING),
       task(3, TaskType.QUERY_EXCHANGE_EVENTS),
+      task(5, TaskType.QUERY_BLOCKCHAIN_BALANCES),
+      task(6, TaskType.FETCH_DETECTED_TOKENS),
       task(4, TaskType.FETCH_NFTS),
     ], t);
     expect(activities.map(a => a.source)).toStrictEqual([

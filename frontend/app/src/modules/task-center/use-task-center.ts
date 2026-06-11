@@ -1,7 +1,9 @@
 import type { ComputedRef } from 'vue';
+import { useBalanceQueue } from '@/modules/balances/use-balance-queue';
 import { useTaskStore } from '@/modules/core/tasks/use-task-store';
 import { useSyncProgress } from '@/modules/shell/sync-progress/use-sync-progress';
 import { backendTaskActivities } from './core/adapters/backend-task';
+import { balanceActivities } from './core/adapters/balances';
 import { decodingActivities } from './core/adapters/decoding';
 import { exchangeEventsActivities } from './core/adapters/exchange-events';
 import { protocolCacheActivities } from './core/adapters/protocol-cache';
@@ -28,9 +30,11 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const translate: TranslateFn = (key, params) => params ? t(key, params) : t(key);
 
   const { chains, decoding, locations, protocolCache } = useSyncProgress();
+  const { queueItems } = useBalanceQueue();
   const taskStore = useTaskStore();
 
   // One computed per source (perf): only the changed source's Activity[] recomputes.
+  const balances = computed<Activity[]>(() => balanceActivities(get(queueItems), translate));
   const txSync = computed<Activity[]>(() => txSyncActivities(get(chains), translate));
   const decode = computed<Activity[]>(() => decodingActivities(get(decoding), translate));
   const events = computed<Activity[]>(() => exchangeEventsActivities(get(locations), translate));
@@ -38,7 +42,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const backend = computed<Activity[]>(() => backendTaskActivities(taskStore.tasks, translate));
 
   const model = computed<ActivityModel>(() => assembleActivityModel(
-    [get(txSync), get(decode), get(events), get(protocol), get(backend)].flat(),
+    [get(balances), get(txSync), get(decode), get(events), get(protocol), get(backend)].flat(),
     translate,
   ));
 
