@@ -1,4 +1,5 @@
 import type { Ref } from 'vue';
+import type { HistoricalBalanceProcessingData } from '@/modules/core/messaging/types/status-types';
 import type { Task, TaskMeta } from '@/modules/core/tasks/types';
 import type { BalanceQueryQueueItem } from '@/modules/dashboard/progress/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,6 +11,7 @@ interface MockData {
   balances: BalanceQueryQueueItem[];
   chains: ChainProgress[];
   decoding: DecodingProgress[];
+  historical: HistoricalBalanceProcessingData | undefined;
   locations: LocationProgress[];
   protocolCache: ProtocolCacheProgress[];
   tasks: Task<TaskMeta>[];
@@ -26,6 +28,7 @@ const data = vi.hoisted((): MockData => ({
   balances: [],
   chains: [],
   decoding: [],
+  historical: undefined,
   locations: [],
   protocolCache: [],
   tasks: [],
@@ -52,6 +55,14 @@ vi.mock('@/modules/balances/use-balance-queue', async () => {
   };
 });
 
+vi.mock('@/modules/history/balances/use-historical-balances-store', () => ({
+  useHistoricalBalancesStore: (): { processingProgress: HistoricalBalanceProcessingData | undefined } => ({
+    get processingProgress(): HistoricalBalanceProcessingData | undefined {
+      return data.historical;
+    },
+  }),
+}));
+
 vi.mock('@/modules/core/tasks/use-task-store', () => ({
   useTaskStore: (): { tasks: Task<TaskMeta>[] } => ({
     get tasks(): Task<TaskMeta>[] {
@@ -71,6 +82,7 @@ describe('useTaskCenter', () => {
     data.balances = [];
     data.chains = [];
     data.decoding = [];
+    data.historical = undefined;
     data.locations = [];
     data.protocolCache = [];
     data.tasks = [];
@@ -97,6 +109,13 @@ describe('useTaskCenter', () => {
     const model = await buildModel();
     expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.BLOCKCHAIN_BALANCES, ActivityKind.TX_DECODING]);
     expect(model.current?.kind).toBe(ActivityKind.BLOCKCHAIN_BALANCES);
+  });
+
+  it('should surface historical balance processing from the store', async () => {
+    data.historical = { processed: 2, total: 8 };
+    const model = await buildModel();
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.HISTORICAL_BALANCES]);
+    expect(model.current?.kind).toBe(ActivityKind.HISTORICAL_BALANCES);
   });
 
   it('should surface uncovered backend tasks through the floor adapter', async () => {

@@ -68,6 +68,7 @@ export const ActivitySourceType = {
   BALANCE_QUERY: 'balance-query',
   BACKEND_TASK: 'backend-task',
   REQUEST_TAG: 'request-tag',
+  INFO: 'info',
 } as const;
 
 export type ActivitySourceType = (typeof ActivitySourceType)[keyof typeof ActivitySourceType];
@@ -83,7 +84,8 @@ export type ActivitySource =
   | { type: typeof ActivitySourceType.PROTOCOL_CACHE; chain: string; protocol: string }
   | { type: typeof ActivitySourceType.BALANCE_QUERY; taskType: TaskType; chain: string; address?: string }
   | { type: typeof ActivitySourceType.BACKEND_TASK; taskId: number; taskType: TaskType }
-  | { type: typeof ActivitySourceType.REQUEST_TAG; tag: string };
+  | { type: typeof ActivitySourceType.REQUEST_TAG; tag: string }
+  | { type: typeof ActivitySourceType.INFO; key: string };
 
 /** Naive, step-based progress — the model already used by PnL and db-upgrade UIs. */
 export interface ActivitySteps {

@@ -41,26 +41,24 @@ function compareActivities(a: Activity, b: Activity): number {
   return a.id.localeCompare(b.id);
 }
 
-function groupTitle(kind: ActivityKind, activities: Activity[], t: TranslateFn): string {
-  // Static keys only (no dynamic i18n keys — see CLAUDE.md). Branches are added as
-  // adapters land; unknown kinds fall back to the first activity's title so a group
-  // is never blank.
-  if (kind === Kind.BLOCKCHAIN_BALANCES)
-    return t('task_center.group.blockchain_balances');
-  if (kind === Kind.TOKEN_DETECTION)
-    return t('task_center.group.token_detection');
-  if (kind === Kind.TX_SYNC)
-    return t('task_center.group.tx_sync');
-  if (kind === Kind.TX_DECODING)
-    return t('task_center.group.tx_decoding');
-  if (kind === Kind.EXCHANGE_EVENTS)
-    return t('task_center.group.exchange_events');
-  if (kind === Kind.PROTOCOL_CACHE)
-    return t('task_center.group.protocol_cache');
-  if (kind === Kind.OTHER)
-    return t('task_center.group.other');
+/**
+ * Per-kind group title resolvers. Each calls `t` with a STATIC literal key (no
+ * dynamic i18n keys — see CLAUDE.md). Kinds absent here fall back to the first
+ * activity's title so a group is never blank. Entries are added as adapters land.
+ */
+const GROUP_TITLE: Partial<Record<ActivityKind, (t: TranslateFn) => string>> = {
+  [Kind.BLOCKCHAIN_BALANCES]: t => t('task_center.group.blockchain_balances'),
+  [Kind.EXCHANGE_EVENTS]: t => t('task_center.group.exchange_events'),
+  [Kind.HISTORICAL_BALANCES]: t => t('task_center.group.historical_balances'),
+  [Kind.OTHER]: t => t('task_center.group.other'),
+  [Kind.PROTOCOL_CACHE]: t => t('task_center.group.protocol_cache'),
+  [Kind.TOKEN_DETECTION]: t => t('task_center.group.token_detection'),
+  [Kind.TX_DECODING]: t => t('task_center.group.tx_decoding'),
+  [Kind.TX_SYNC]: t => t('task_center.group.tx_sync'),
+};
 
-  return activities[0]?.title ?? kind;
+function groupTitle(kind: ActivityKind, activities: Activity[], t: TranslateFn): string {
+  return GROUP_TITLE[kind]?.(t) ?? activities[0]?.title ?? kind;
 }
 
 function toGroup(kind: ActivityKind, activities: Activity[], t: TranslateFn): ActivityGroup {

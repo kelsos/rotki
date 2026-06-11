@@ -1,11 +1,13 @@
 import type { ComputedRef } from 'vue';
 import { useBalanceQueue } from '@/modules/balances/use-balance-queue';
 import { useTaskStore } from '@/modules/core/tasks/use-task-store';
+import { useHistoricalBalancesStore } from '@/modules/history/balances/use-historical-balances-store';
 import { useSyncProgress } from '@/modules/shell/sync-progress/use-sync-progress';
 import { backendTaskActivities } from './core/adapters/backend-task';
 import { balanceActivities } from './core/adapters/balances';
 import { decodingActivities } from './core/adapters/decoding';
 import { exchangeEventsActivities } from './core/adapters/exchange-events';
+import { historicalBalanceActivities } from './core/adapters/historical-balances';
 import { protocolCacheActivities } from './core/adapters/protocol-cache';
 import { txSyncActivities } from './core/adapters/tx-sync';
 import { assembleActivityModel } from './core/assemble';
@@ -31,6 +33,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
 
   const { chains, decoding, locations, protocolCache } = useSyncProgress();
   const { queueItems } = useBalanceQueue();
+  const historicalStore = useHistoricalBalancesStore();
   const taskStore = useTaskStore();
 
   // One computed per source (perf): only the changed source's Activity[] recomputes.
@@ -39,10 +42,11 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const decode = computed<Activity[]>(() => decodingActivities(get(decoding), translate));
   const events = computed<Activity[]>(() => exchangeEventsActivities(get(locations), translate));
   const protocol = computed<Activity[]>(() => protocolCacheActivities(get(protocolCache), translate));
+  const historical = computed<Activity[]>(() => historicalBalanceActivities(historicalStore.processingProgress, translate));
   const backend = computed<Activity[]>(() => backendTaskActivities(taskStore.tasks, translate));
 
   const model = computed<ActivityModel>(() => assembleActivityModel(
-    [get(balances), get(txSync), get(decode), get(events), get(protocol), get(backend)].flat(),
+    [get(balances), get(txSync), get(decode), get(events), get(protocol), get(historical), get(backend)].flat(),
     translate,
   ));
 
