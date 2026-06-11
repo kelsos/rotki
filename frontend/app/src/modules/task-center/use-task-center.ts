@@ -7,21 +7,8 @@ import { useHistoryRefreshStateStore } from '@/modules/history/use-history-refre
 import { useReportsStore } from '@/modules/reports/use-reports-store';
 import { useSyncProgress } from '@/modules/shell/sync-progress/use-sync-progress';
 import { useLiquityStore } from '@/modules/staking/liquity/use-liquity-store';
-import {
-  backendTaskActivities,
-  balanceActivities,
-  decodingActivities,
-  exchangeEventsActivities,
-  historicalBalanceActivities,
-  pendingRefreshActivities,
-  pnlReportActivities,
-  priceActivities,
-  protocolCacheActivities,
-  stakingActivities,
-  taskKindedActivities,
-  txSyncActivities,
-} from './core/adapters';
 import { assembleActivityModel } from './core/assemble';
+import { ACTIVITY_ADAPTERS, type SourceContext } from './core/registry';
 import { type Activity, type ActivityModel, ActivityPhase, type TranslateFn } from './core/types';
 
 interface UseTaskCenterReturn {
@@ -34,9 +21,9 @@ interface UseTaskCenterReturn {
 
 /**
  * Reactive shell over the pure read model. The only Vue file in the read layer: it
- * wires each source into its pure adapter via a dedicated computed (so a burst on one
- * source only recomputes that source) and assembles the result. All logic lives in
- * the pure core; this file is wiring.
+ * builds the source context, then turns each adapter in {@link ACTIVITY_ADAPTERS} into a
+ * dedicated computed (so a burst on one source only recomputes that source's adapter)
+ * and assembles the result. All logic lives in the pure core; this file is wiring.
  */
 export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const { t } = useI18n({ useScope: 'global' });
@@ -51,41 +38,27 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const liquityStore = useLiquityStore();
   const taskStore = useTaskStore();
 
-  // One computed per source (perf): only the changed source's Activity[] recomputes.
-  const balances = computed<Activity[]>(() => balanceActivities(get(queueItems), translate));
-  const taskKinded = computed<Activity[]>(() => taskKindedActivities(taskStore.tasks, translate));
-  const txSync = computed<Activity[]>(() => txSyncActivities(get(chains), translate));
-  const decode = computed<Activity[]>(() => decodingActivities(get(decoding), translate));
-  const events = computed<Activity[]>(() => exchangeEventsActivities(get(locations), translate));
-  const protocol = computed<Activity[]>(() => protocolCacheActivities(get(protocolCache), translate));
-  const historical = computed<Activity[]>(() => historicalBalanceActivities(historicalStore.processingProgress, translate));
-  const prices = computed<Activity[]>(() => priceActivities({
-    daily: priceStore.historicalDailyPriceStatus,
-    historical: priceStore.historicalPriceStatus,
-    stats: priceStore.statsPriceQueryStatus,
-  }, translate));
-  const pnl = computed<Activity[]>(() => pnlReportActivities(reportsStore.reportProgress, translate));
-  const staking = computed<Activity[]>(() => stakingActivities(liquityStore.stakingQueryStatus, translate));
-  const pendingRefresh = computed<Activity[]>(() => pendingRefreshActivities([...refreshStore.pendingKeys], translate));
-  const backend = computed<Activity[]>(() => backendTaskActivities(taskStore.tasks, translate));
+  // Reactive sources as thunks; each adapter computed reads only the source it selects.
+  const ctx: SourceContext = {
+    balances: () => get(queueItems),
+    chains: () => get(chains),
+    decoding: () => get(decoding),
+    historical: () => historicalStore.processingProgress,
+    locations: () => get(locations),
+    pendingKeys: () => [...refreshStore.pendingKeys],
+    prices: () => ({
+      daily: priceStore.historicalDailyPriceStatus,
+      historical: priceStore.historicalPriceStatus,
+      stats: priceStore.statsPriceQueryStatus,
+    }),
+    protocolCache: () => get(protocolCache),
+    reportProgress: () => reportsStore.reportProgress,
+    staking: () => liquityStore.stakingQueryStatus,
+    tasks: () => taskStore.tasks,
+  };
 
-  const model = computed<ActivityModel>(() => assembleActivityModel(
-    [
-      get(balances),
-      get(taskKinded),
-      get(txSync),
-      get(decode),
-      get(events),
-      get(protocol),
-      get(historical),
-      get(prices),
-      get(pnl),
-      get(staking),
-      get(pendingRefresh),
-      get(backend),
-    ].flat(),
-    translate,
-  ));
+  const lists = ACTIVITY_ADAPTERS.map(descriptor => computed<Activity[]>(() => descriptor.run(ctx, translate)));
+  const model = computed<ActivityModel>(() => assembleActivityModel(lists.flatMap(list => get(list)), translate));
 
   const active = computed<Activity[]>(() => get(model).active);
   const pending = computed<Activity[]>(() => get(model).pending);

@@ -1,35 +1,6 @@
+import { groupTitle, kindRank } from './kinds';
 import { INDETERMINATE, rollupPercentage, rollupStatus, statusRank } from './status';
-import { type Activity, type ActivityGroup, type ActivityId, type ActivityKind, type ActivityModel, type ActivityPhase, ActivityStatus, ActivityKind as Kind, ActivityPhase as Phase, type TranslateFn } from './types';
-
-/**
- * Display + selection priority for kinds (highest first). Drives group ordering and
- * which running activity the header bar labels (`current`). Mirrors the existing
- * `use-unified-progress` precedence (balances before history).
- */
-const KIND_PRIORITY: readonly ActivityKind[] = [
-  Kind.BLOCKCHAIN_BALANCES,
-  Kind.TOKEN_DETECTION,
-  Kind.EXCHANGE_BALANCES,
-  Kind.STAKING,
-  Kind.TX_SYNC,
-  Kind.TX_DECODING,
-  Kind.REPULLING,
-  Kind.EXCHANGE_EVENTS,
-  Kind.ONLINE_EVENTS,
-  Kind.PROTOCOL_CACHE,
-  Kind.PRICES,
-  Kind.PNL_REPORT,
-  Kind.HISTORICAL_BALANCES,
-  Kind.CSV_IMPORT,
-  Kind.DB_UPGRADE,
-  Kind.DATA_MIGRATION,
-  Kind.OTHER,
-];
-
-function kindRank(kind: ActivityKind): number {
-  const index = KIND_PRIORITY.indexOf(kind);
-  return index === -1 ? KIND_PRIORITY.length : index;
-}
+import { type Activity, type ActivityGroup, type ActivityId, type ActivityKind, type ActivityModel, type ActivityPhase, ActivityStatus, ActivityPhase as Phase, type TranslateFn } from './types';
 
 /** Stable ordering: by kind priority, then by start time, then by id. */
 function compareActivities(a: Activity, b: Activity): number {
@@ -42,32 +13,6 @@ function compareActivities(a: Activity, b: Activity): number {
     return byStart;
 
   return a.id.localeCompare(b.id);
-}
-
-/**
- * Per-kind group title resolvers. Each calls `t` with a STATIC literal key (no
- * dynamic i18n keys — see CLAUDE.md). Kinds absent here fall back to the first
- * activity's title so a group is never blank. Entries are added as adapters land.
- */
-const GROUP_TITLE: Partial<Record<ActivityKind, (t: TranslateFn) => string>> = {
-  [Kind.BLOCKCHAIN_BALANCES]: t => t('task_center.group.blockchain_balances'),
-  [Kind.CSV_IMPORT]: t => t('task_center.group.csv_import'),
-  [Kind.EXCHANGE_BALANCES]: t => t('task_center.group.exchange_balances'),
-  [Kind.EXCHANGE_EVENTS]: t => t('task_center.group.exchange_events'),
-  [Kind.HISTORICAL_BALANCES]: t => t('task_center.group.historical_balances'),
-  [Kind.OTHER]: t => t('task_center.group.other'),
-  [Kind.PNL_REPORT]: t => t('task_center.group.pnl_report'),
-  [Kind.PRICES]: t => t('task_center.group.prices'),
-  [Kind.PROTOCOL_CACHE]: t => t('task_center.group.protocol_cache'),
-  [Kind.REPULLING]: t => t('task_center.group.repulling'),
-  [Kind.STAKING]: t => t('task_center.group.staking'),
-  [Kind.TOKEN_DETECTION]: t => t('task_center.group.token_detection'),
-  [Kind.TX_DECODING]: t => t('task_center.group.tx_decoding'),
-  [Kind.TX_SYNC]: t => t('task_center.group.tx_sync'),
-};
-
-function groupTitle(kind: ActivityKind, activities: Activity[], t: TranslateFn): string {
-  return GROUP_TITLE[kind]?.(t) ?? activities[0]?.title ?? kind;
 }
 
 function toGroup(kind: ActivityKind, activities: Activity[], t: TranslateFn): ActivityGroup {
