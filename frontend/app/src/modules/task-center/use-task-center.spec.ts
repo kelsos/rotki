@@ -1,5 +1,6 @@
 import type { CommonQueryStatusData } from '@rotki/common';
 import type { Ref } from 'vue';
+import type { PnlReportProgress } from './core/adapters/pnl-report';
 import type { HistoricalBalanceProcessingData } from '@/modules/core/messaging/types/status-types';
 import type { Task, TaskMeta } from '@/modules/core/tasks/types';
 import type { BalanceQueryQueueItem } from '@/modules/dashboard/progress/types';
@@ -14,6 +15,7 @@ interface MockData {
   decoding: DecodingProgress[];
   historical: HistoricalBalanceProcessingData | undefined;
   prices: CommonQueryStatusData | undefined;
+  pnl: PnlReportProgress;
   locations: LocationProgress[];
   protocolCache: ProtocolCacheProgress[];
   tasks: Task<TaskMeta>[];
@@ -32,6 +34,7 @@ const data = vi.hoisted((): MockData => ({
   decoding: [],
   historical: undefined,
   prices: undefined,
+  pnl: { processingState: '', totalProgress: '' },
   locations: [],
   protocolCache: [],
   tasks: [],
@@ -74,6 +77,14 @@ vi.mock('@/modules/assets/prices/use-historic-cache-price-store', () => ({
   }),
 }));
 
+vi.mock('@/modules/reports/use-reports-store', () => ({
+  useReportsStore: (): { reportProgress: PnlReportProgress } => ({
+    get reportProgress(): PnlReportProgress {
+      return data.pnl;
+    },
+  }),
+}));
+
 vi.mock('@/modules/core/tasks/use-task-store', () => ({
   useTaskStore: (): { tasks: Task<TaskMeta>[] } => ({
     get tasks(): Task<TaskMeta>[] {
@@ -95,6 +106,7 @@ describe('useTaskCenter', () => {
     data.decoding = [];
     data.historical = undefined;
     data.prices = undefined;
+    data.pnl = { processingState: '', totalProgress: '' };
     data.locations = [];
     data.protocolCache = [];
     data.tasks = [];
@@ -134,6 +146,13 @@ describe('useTaskCenter', () => {
     data.prices = { processed: 1, total: 4 };
     const model = await buildModel();
     expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.PRICES]);
+  });
+
+  it('should surface PnL report generation from the reports store', async () => {
+    data.pnl = { processingState: 'Processing events', totalProgress: '30' };
+    const model = await buildModel();
+    expect(model.groups.map(g => g.kind)).toStrictEqual([ActivityKind.PNL_REPORT]);
+    expect(model.current?.kind).toBe(ActivityKind.PNL_REPORT);
   });
 
   it('should surface uncovered backend tasks through the floor adapter', async () => {

@@ -51,6 +51,7 @@ const GROUP_TITLE: Partial<Record<ActivityKind, (t: TranslateFn) => string>> = {
   [Kind.EXCHANGE_EVENTS]: t => t('task_center.group.exchange_events'),
   [Kind.HISTORICAL_BALANCES]: t => t('task_center.group.historical_balances'),
   [Kind.OTHER]: t => t('task_center.group.other'),
+  [Kind.PNL_REPORT]: t => t('task_center.group.pnl_report'),
   [Kind.PRICES]: t => t('task_center.group.prices'),
   [Kind.PROTOCOL_CACHE]: t => t('task_center.group.protocol_cache'),
   [Kind.TOKEN_DETECTION]: t => t('task_center.group.token_detection'),

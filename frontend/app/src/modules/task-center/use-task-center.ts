@@ -3,12 +3,14 @@ import { useHistoricCachePriceStore } from '@/modules/assets/prices/use-historic
 import { useBalanceQueue } from '@/modules/balances/use-balance-queue';
 import { useTaskStore } from '@/modules/core/tasks/use-task-store';
 import { useHistoricalBalancesStore } from '@/modules/history/balances/use-historical-balances-store';
+import { useReportsStore } from '@/modules/reports/use-reports-store';
 import { useSyncProgress } from '@/modules/shell/sync-progress/use-sync-progress';
 import { backendTaskActivities } from './core/adapters/backend-task';
 import { balanceActivities } from './core/adapters/balances';
 import { decodingActivities } from './core/adapters/decoding';
 import { exchangeEventsActivities } from './core/adapters/exchange-events';
 import { historicalBalanceActivities } from './core/adapters/historical-balances';
+import { pnlReportActivities } from './core/adapters/pnl-report';
 import { priceActivities } from './core/adapters/prices';
 import { protocolCacheActivities } from './core/adapters/protocol-cache';
 import { txSyncActivities } from './core/adapters/tx-sync';
@@ -37,6 +39,7 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const { queueItems } = useBalanceQueue();
   const historicalStore = useHistoricalBalancesStore();
   const priceStore = useHistoricCachePriceStore();
+  const reportsStore = useReportsStore();
   const taskStore = useTaskStore();
 
   // One computed per source (perf): only the changed source's Activity[] recomputes.
@@ -47,10 +50,11 @@ export const useTaskCenter = createSharedComposable((): UseTaskCenterReturn => {
   const protocol = computed<Activity[]>(() => protocolCacheActivities(get(protocolCache), translate));
   const historical = computed<Activity[]>(() => historicalBalanceActivities(historicalStore.processingProgress, translate));
   const prices = computed<Activity[]>(() => priceActivities(priceStore.historicalDailyPriceStatus, translate));
+  const pnl = computed<Activity[]>(() => pnlReportActivities(reportsStore.reportProgress, translate));
   const backend = computed<Activity[]>(() => backendTaskActivities(taskStore.tasks, translate));
 
   const model = computed<ActivityModel>(() => assembleActivityModel(
-    [get(balances), get(txSync), get(decode), get(events), get(protocol), get(historical), get(prices), get(backend)].flat(),
+    [get(balances), get(txSync), get(decode), get(events), get(protocol), get(historical), get(prices), get(pnl), get(backend)].flat(),
     translate,
   ));
 
