@@ -5618,10 +5618,12 @@
   },
   "task_center": {
     "activity": {
-      "tx_decoding": "Decoding transactions"
+      "tx_decoding": "Decoding transactions",
+      "tx_sync": "Syncing transactions"
     },
     "group": {
-      "tx_decoding": "Transaction decoding"
+      "tx_decoding": "Transaction decoding",
+      "tx_sync": "Transaction sync"
     }
   },
   "task_manager": {

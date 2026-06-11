@@ -45,6 +45,8 @@ function groupTitle(kind: ActivityKind, activities: Activity[], t: TranslateFn):
   // Static keys only (no dynamic i18n keys — see CLAUDE.md). Branches are added as
   // adapters land; unknown kinds fall back to the first activity's title so a group
   // is never blank.
+  if (kind === Kind.TX_SYNC)
+    return t('task_center.group.tx_sync');
   if (kind === Kind.TX_DECODING)
     return t('task_center.group.tx_decoding');
 
