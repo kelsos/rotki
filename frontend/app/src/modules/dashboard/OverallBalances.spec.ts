@@ -43,6 +43,28 @@ vi.mock('@/modules/statistics/use-statistics-store', async () => {
   };
 });
 
+vi.mock('@/modules/dashboard/graph/use-dashboard-net-value', async () => {
+  const { computed: createComputed, ref: createRef } = await import('vue');
+  const { storeToRefs: refsOf } = await import('pinia');
+  return {
+    useDashboardNetValue: vi.fn(() => {
+      const store = useStatisticsStore();
+      const { netValueError, totalNetWorth } = refsOf(store);
+      return {
+        chartData: createComputed<NetValueChartData>(() => store.getNetValue(0)),
+        chartError: netValueError,
+        estimatedAssets: createComputed<string[]>(() => []),
+        hasEstimates: createComputed<boolean>(() => false),
+        loading: createRef<boolean>(false),
+        missingAssets: createComputed<string[]>(() => []),
+        netWorth: totalNetWorth,
+        processingRequired: createRef<boolean>(false),
+        retry: async (): Promise<void> => mockFetchNetValue(),
+      };
+    }),
+  };
+});
+
 describe('overallBalances', () => {
   let wrapper: VueWrapper<InstanceType<typeof OverallBalances>>;
 
@@ -61,6 +83,7 @@ describe('overallBalances', () => {
           AssetsBySource: true,
           ChainsUpdatedCaption: true,
           DashboardRefresh: true,
+          NetValueChartStatus: true,
           NetWorthChart: true,
           SnapshotActionButton: true,
           TimeframeSelector: true,

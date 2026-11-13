@@ -23,9 +23,16 @@ export interface NetValuePoint {
   readonly missingAssets: readonly string[];
 }
 
-/** Whether a point should be drawn and labelled as estimated. */
+/**
+ * Whether a point should be drawn and labelled as estimated.
+ *
+ * @remarks
+ * Only stand-in prices count. An asset with no price at all is left out of the value and listed in
+ * `missingAssets`, the way live balances leave out what has no price; counting it here would mark
+ * every point of a wallet holding one dust token as estimated for good.
+ */
 export function isEstimatedPoint(point: NetValuePoint, threshold: number = ESTIMATED_SHARE_THRESHOLD): boolean {
-  return point.missingAssets.length > 0 || point.estimatedShare > threshold;
+  return point.estimatedShare > threshold;
 }
 
 interface DayTotals {

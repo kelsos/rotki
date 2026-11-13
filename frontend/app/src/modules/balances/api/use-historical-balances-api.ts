@@ -9,12 +9,14 @@ import {
   HistoricalBalancesAtEventsResponse,
   type HistoricalBalanceSeriesPayload,
   HistoricalBalancesResponse,
+  HistoricalNetValueResponse,
 } from '@/modules/history/balances/types';
 
 interface UseHistoricalBalancesApiReturn {
   fetchCurrentHistoricalBalances: () => Promise<CurrentHistoricalBalancesResponse>;
   fetchHistoricalBalances: (timestamp: number) => Promise<HistoricalBalancesResponse>;
   fetchHistoricalBalancesAtEvents: (eventIdentifiers: number[]) => Promise<HistoricalBalancesAtEventsResponse>;
+  fetchHistoricalNetValue: (fromTimestamp: number, toTimestamp: number) => Promise<HistoricalNetValueResponse>;
   findHistoricalBalanceDivergence: (payload: HistoricalBalanceDivergencePayload) => Promise<PendingTask>;
   fetchHistoricalBalanceSeries: (payload: HistoricalBalanceSeriesPayload) => Promise<PendingTask>;
   processHistoricalBalances: () => Promise<PendingTask>;
@@ -68,6 +70,22 @@ export function useHistoricalBalancesApi(): UseHistoricalBalancesApiReturn {
     return HistoricalBalancesAtEventsResponse.parse(await api.post('/balances/historical/events', { eventIdentifiers }));
   }
 
+  /**
+   * Each asset's amount at the end of every day in the range, derived from processed history.
+   *
+   * @remarks
+   * Amounts only: the graphs price them. The per-day maps are keyed by asset identifier, so they
+   * skip the camelCase conversion that would rewrite identifiers with underscores.
+   *
+   * @param fromTimestamp - unix seconds
+   * @param toTimestamp - unix seconds
+   */
+  async function fetchHistoricalNetValue(fromTimestamp: number, toTimestamp: number): Promise<HistoricalNetValueResponse> {
+    return HistoricalNetValueResponse.parse(await api.post('/balances/historical/netvalue', { fromTimestamp, toTimestamp }, {
+      skipCamelCaseKeys: ['values'],
+    }));
+  }
+
   const findHistoricalBalanceDivergence = async (payload: HistoricalBalanceDivergencePayload): Promise<PendingTask> => {
     const response = await api.post<PendingTask>('/balances/historical/onchain/divergence', {
       asyncQuery: true,
@@ -91,6 +109,7 @@ export function useHistoricalBalancesApi(): UseHistoricalBalancesApiReturn {
     fetchCurrentHistoricalBalances,
     fetchHistoricalBalances,
     fetchHistoricalBalancesAtEvents,
+    fetchHistoricalNetValue,
     findHistoricalBalanceDivergence,
     fetchHistoricalBalanceSeries,
     processHistoricalBalances,

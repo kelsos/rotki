@@ -14,6 +14,43 @@ describe('composables/api/balances/historical-balances', () => {
     return useHistoricalBalancesApi();
   }
 
+  describe('fetchHistoricalNetValue', () => {
+    it('should request the range and keep asset identifiers exactly as sent', async () => {
+      let capturedBody: DefaultBodyType = null;
+      server.use(
+        http.post(`${backendUrl}/api/1/balances/historical/netvalue`, async ({ request }) => {
+          capturedBody = await request.json();
+          return HttpResponse.json({
+            message: '',
+            result: {
+              processing_required: false,
+              times: [1700000000, 1700086400],
+              values: [{ _ceth_0xabc: '2', BTC: '1' }, { BTC: '1.5' }],
+            },
+          });
+        }),
+      );
+
+      const { fetchHistoricalNetValue } = await getApi();
+      const result = await fetchHistoricalNetValue(1700000000, 1700086400);
+
+      expect(capturedBody).toEqual({ from_timestamp: 1700000000, to_timestamp: 1700086400 });
+      expect(result.times).toEqual([1700000000, 1700086400]);
+      expect(result.values.map(day => Object.fromEntries(Object.entries(day).map(([asset, amount]) => [asset, amount.toFixed()]))))
+        .toEqual([{ _ceth_0xabc: '2', BTC: '1' }, { BTC: '1.5' }]);
+    });
+
+    it('should read a range with nothing processed as empty', async () => {
+      server.use(
+        http.post(`${backendUrl}/api/1/balances/historical/netvalue`, () =>
+          HttpResponse.json({ message: '', result: { processing_required: true } })),
+      );
+
+      const { fetchHistoricalNetValue } = await getApi();
+      expect(await fetchHistoricalNetValue(1, 2)).toEqual({ processingRequired: true, times: [], values: [] });
+    });
+  });
+
   describe('fetchHistoricalBalances', () => {
     it('should request per-account balances at the timestamp and parse every bucket', async () => {
       let capturedBody: DefaultBodyType = null;

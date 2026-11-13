@@ -27,7 +27,7 @@ describe('modules/statistics/pricing/net-value-series', () => {
     );
     expect(day.value?.toFixed()).toBe('30');
     expect(day.missingAssets).toEqual(['SPAM']);
-    expect(isEstimatedPoint(day)).toBe(true);
+    expect(isEstimatedPoint(day)).toBe(false);
   });
 
   it('should make a day with nothing priced a gap instead of zero', () => {

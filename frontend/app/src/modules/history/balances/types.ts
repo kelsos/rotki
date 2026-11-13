@@ -50,6 +50,21 @@ export const CurrentHistoricalBalancesResponse = HistoricalBalancesResponse.exte
 
 export type CurrentHistoricalBalancesResponse = z.infer<typeof CurrentHistoricalBalancesResponse>;
 
+/**
+ * Daily asset amounts derived from processed history, from `/balances/historical/netvalue`.
+ *
+ * @remarks
+ * `times` are day starts and `values` holds, per day, each asset's amount. Both are absent when
+ * nothing in the range has been processed.
+ */
+export const HistoricalNetValueResponse = z.object({
+  processingRequired: z.boolean(),
+  times: z.array(z.number()).optional().default([]),
+  values: z.array(z.record(z.string(), NumericString)).optional().default([]),
+});
+
+export type HistoricalNetValueResponse = z.infer<typeof HistoricalNetValueResponse>;
+
 const HistoricalBalanceSeriesEntry = z.object({
   location: z.string(),
   locationLabel: z.string(),

@@ -10,6 +10,7 @@ import type { DataZoomComponentOption, GridComponentOption } from 'echarts/compo
 import type { ComputedRef, MaybeRefOrGetter } from 'vue';
 import type { NetValueZoomRange } from '@/modules/dashboard/graph/net-value-stats';
 import type { NetValueChartData } from '@/modules/dashboard/graph/types';
+import { estimatedBands } from '@/modules/dashboard/graph/net-value-estimated-bands';
 import { useSetting } from '@/modules/settings/use-setting';
 import { useGraph } from '@/modules/statistics/use-graph';
 
@@ -69,15 +70,16 @@ export function useNetValueChartConfig(
   chartData: MaybeRefOrGetter<NetValueChartData>,
   zoomRange: MaybeRefOrGetter<NetValueZoomRange | undefined> = () => undefined,
 ): UseNetValueChartConfigReturn {
-  const data = computed<number[][]>(() => {
-    const { data, times } = toValue(chartData);
+  /** Points as `[ms, value]`; a point with nothing priced is `null`, which breaks the line there. */
+  const data = computed<(number | null)[][]>(() => {
+    const { data, missing, times } = toValue(chartData);
     if (!(times?.length && data?.length)) {
       return [];
     }
     const MILLISECONDS = 1000;
     return times.map((epoch, index) => [
       epoch * MILLISECONDS,
-      Number(data[index]),
+      missing?.[index] ? null : Number(data[index]),
     ]);
   });
 
@@ -170,11 +172,26 @@ export function useNetValueChartConfig(
     };
   };
 
+  /** Shaded bands over the stretches whose values rest on a stand-in price or rate. */
+  const createEstimatedMarkArea = (): LineSeriesOption['markArea'] => {
+    const { estimated, times } = toValue(chartData);
+    const bands = estimatedBands(times, estimated);
+    if (bands.length === 0)
+      return undefined;
+    return {
+      data: bands.map(band => [{ xAxis: band.start * MS }, { xAxis: band.end * MS }]),
+      itemStyle: { color: get(secondaryColor), opacity: 0.08 },
+      silent: true,
+    };
+  };
+
   const createSeriesConfig = (): LineSeriesOption[] => [{
     areaStyle: get(gradient),
+    connectNulls: false,
     data: get(data),
     itemStyle: { color: get(baseColor) },
     lineStyle: { color: get(baseColor) },
+    markArea: createEstimatedMarkArea(),
     showSymbol: false,
     smooth: false,
     symbol: 'circle',

@@ -1963,6 +1963,7 @@
     "basis_live": "live in both",
     "behind": "Behind recent event edits",
     "by_source": "Where the difference comes from",
+    "chart_history": "The chart shows balances derived from your history events",
     "chart_live": "The chart shows snapshots of live balances",
     "difference": "Difference",
     "from_event_history": "From event history",
@@ -5697,8 +5698,20 @@
     },
     "tag_manager": "Tag Manager"
   },
+  "net_value_status": {
+    "estimated_prices": "Prices for {count} asset are estimated | Prices for {count} assets are estimated",
+    "estimated_rate": "Some points use an estimated exchange rate until the historical rates are fetched",
+    "fetch_automatically": "Fetch automatically",
+    "fetch_missing": "Fetch missing prices",
+    "fetching": "Fetching missing prices, a few at a time",
+    "missing_prices": "{count} asset has no price and is left out | {count} assets have no price and are left out",
+    "processing_required": "Some history events are not processed yet, so these balances may change",
+    "stop": "Stop"
+  },
   "net_worth_chart": {
-    "current_balance": "Current balance"
+    "current_balance": "Current balance",
+    "estimated": "Estimated: some prices on this day are not known yet",
+    "no_price": "No price for anything held on this day"
   },
   "nft_balance_table": {
     "column": {

@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { NetValueChartData } from '@/modules/dashboard/graph/types';
 import type { SourceKind } from '@/modules/dashboard/holdings/core/holdings-types';
 import { assert, type BigNumber, TimeFramePeriod, TimeFramePersist, timeframes, type TimeFrameSetting, TimeUnit } from '@rotki/common';
 import dayjs from 'dayjs';
 import { useBalancesLoading } from '@/modules/balances/use-balance-loading';
 import { useBalanceView } from '@/modules/balances/view/use-balance-view';
 import { computeNetValueDelta, type NetValueZoomRange } from '@/modules/dashboard/graph/net-value-stats';
+import NetValueChartStatus from '@/modules/dashboard/graph/NetValueChartStatus.vue';
 import NetWorthChart from '@/modules/dashboard/graph/NetWorthChart.vue';
+import { useDashboardNetValue } from '@/modules/dashboard/graph/use-dashboard-net-value';
 import AssetsBySource from '@/modules/dashboard/holdings/components/AssetsBySource.vue';
 import NetWorthHeadline from '@/modules/dashboard/NetWorthHeadline.vue';
 import SnapshotActionButton from '@/modules/dashboard/SnapshotActionButton.vue';
@@ -17,8 +18,6 @@ import { isPeriodAllowed } from '@/modules/settings/settings-utils';
 import { useSetting } from '@/modules/settings/use-setting';
 import { useSettingsOperations } from '@/modules/settings/use-settings-operations';
 import TimeframeSelector from '@/modules/statistics/TimeframeSelector.vue';
-import { useStatisticsDataFetching } from '@/modules/statistics/use-statistics-data-fetching';
-import { useStatisticsStore } from '@/modules/statistics/use-statistics-store';
 
 const selectedKind = defineModel<SourceKind | undefined>('selectedKind');
 
@@ -27,11 +26,8 @@ const { t } = useI18n({ useScope: 'global' });
 const netWorthChart = useTemplateRef<InstanceType<typeof NetWorthChart>>('netWorthChart');
 
 const settingsRepo = useSettingsRepo();
-const statisticsStore = useStatisticsStore();
 const timeframe = useSetting('timeframe');
-const { netValueError, totalNetWorth } = storeToRefs(statisticsStore);
 const visibleTimeframes = useSetting('visibleTimeframes');
-const { getNetValue } = statisticsStore;
 
 const premium = usePremium();
 const { updateFrontendSetting } = useSettingsOperations();
@@ -40,6 +36,26 @@ const { loadingBlockchainBalances: isLoading } = useBalancesLoading();
 
 const loadingNetWorth = useNetWorthLoading();
 
+const zoomRange = ref<NetValueZoomRange>();
+
+const allTimeframes = computed(() =>
+  timeframes((unit, amount) => dayjs().subtract(amount, unit).startOf(TimeUnit.DAY).unix()),
+);
+
+const startingDate = computed<number>(() => get(allTimeframes)[get(timeframe)].startingDate());
+
+const {
+  chartData: timeframeData,
+  chartError,
+  estimatedAssets,
+  hasEstimates,
+  loading: loadingHistory,
+  missingAssets,
+  netWorth,
+  processingRequired,
+  retry: retryChart,
+} = useDashboardNetValue(startingDate, isHistory);
+
 /**
  * Whether the delta and the chart have a total worth drawing.
  *
@@ -47,27 +63,13 @@ const loadingNetWorth = useNetWorthLoading();
  * Wider than the header's own latch, which waits for the first load only. A delta computed from a
  * half-loaded total is a number that is wrong while it moves, so these two wait for every load. The
  * latch is what carries them through the first frames, before any balance activity is submitted.
+ * The History view also waits for its own series.
  */
-const isBusy = computed<boolean>(() => get(loadingNetWorth) || get(isLoading));
-
-const { fetchNetValue } = useStatisticsDataFetching();
-
-const zoomRange = ref<NetValueZoomRange>();
-
-const allTimeframes = computed(() =>
-  timeframes((unit, amount) => dayjs().subtract(amount, unit).startOf(TimeUnit.DAY).unix()),
-);
-
-const timeframeData = computed<NetValueChartData>(() => {
-  const all = get(allTimeframes);
-  const selection = get(timeframe);
-  const startingDate = all[selection].startingDate();
-  return getNetValue(startingDate);
-});
+const isBusy = computed<boolean>(() => get(loadingNetWorth) || get(isLoading) || (get(isHistory) && get(loadingHistory)));
 
 const stats = computed(() => {
   const { data, times } = get(timeframeData);
-  return computeNetValueDelta(data, times, get(totalNetWorth), get(zoomRange));
+  return computeNetValueDelta(data, times, get(netWorth), get(zoomRange));
 });
 
 const startingValue = computed<BigNumber>(() => get(stats).startingValue);
@@ -145,7 +147,7 @@ onMounted(() => {
           {{ t('overall_balances.loading') }}
         </div>
         <div
-          v-else-if="netValueError"
+          v-else-if="chartError"
           class="absolute top-0 h-full w-full flex flex-col gap-3 items-center justify-center px-4 text-center bg-rui-surface/80 dark:bg-rui-surface/90 z-6"
           data-testid="net-value-error"
         >
@@ -153,30 +155,27 @@ onMounted(() => {
             {{ t('overall_balances.net_value_error') }}
           </div>
           <div class="text-rui-text-secondary text-caption break-all">
-            {{ netValueError }}
+            {{ chartError }}
           </div>
           <RuiButton
             size="sm"
             color="primary"
             variant="outlined"
             data-testid="net-value-retry"
-            @click="fetchNetValue()"
+            @click="retryChart()"
           >
             {{ t('common.actions.retry') }}
           </RuiButton>
         </div>
       </div>
-      <p
-        v-if="viewAvailable"
-        class="flex items-center gap-1 px-2 text-xs text-rui-text-secondary"
-        data-testid="overall-balances-chart-queried"
-      >
-        <RuiIcon
-          name="lu-info"
-          size="14"
-        />
-        {{ t('balance_view.chart_live') }}
-      </p>
+      <NetValueChartStatus
+        :is-history="isHistory"
+        :view-available="viewAvailable"
+        :has-estimates="hasEstimates"
+        :estimated-count="estimatedAssets.length"
+        :missing-count="missingAssets.length"
+        :processing-required="processingRequired"
+      />
     </div>
     <AssetsBySource
       v-model:selected-kind="selectedKind"
