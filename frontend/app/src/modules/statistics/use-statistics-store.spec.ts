@@ -1,12 +1,11 @@
 import type { usePriceUtils } from '@/modules/assets/prices/use-price-utils';
-import { type AssetBalanceWithPriceAndChains, BigNumber } from '@rotki/common';
+import { type AssetBalanceWithPriceAndChains, BigNumber, PriceQuality } from '@rotki/common';
 import { get } from '@vueuse/core';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useCurrencies } from '@/modules/assets/amount-display/currencies';
 import { defaultGeneralSettings } from '@/modules/settings/factories';
 import { useSettingsRepo } from '@/modules/settings/settings-repo';
-import { PriceQuality } from '@/modules/statistics/pricing/price-series';
 import { useStatisticsStore } from './use-statistics-store';
 
 let generalSettingsStore: ReturnType<typeof useSettingsRepo> | null = null;

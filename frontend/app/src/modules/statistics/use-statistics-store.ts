@@ -1,6 +1,6 @@
 import type { MaybeRef } from 'vue';
 import type { NetValueChartData } from '@/modules/dashboard/graph/types';
-import { type AssetBalanceWithPriceAndChains, type BigNumber, type NetValue, One, type TimeFramePeriod, timeframes, TimeUnit, Zero } from '@rotki/common';
+import { type AssetBalanceWithPriceAndChains, type BigNumber, type NetValue, One, type ResolvedPrice, type TimeFramePeriod, timeframes, TimeUnit, Zero } from '@rotki/common';
 import dayjs from 'dayjs';
 import { CURRENCY_USD, type SupportedCurrency } from '@/modules/assets/amount-display/currencies';
 import { useAmountDisplaySettings } from '@/modules/assets/amount-display/use-amount-display-settings';
@@ -10,7 +10,7 @@ import { useAggregatedBalances } from '@/modules/balances/use-aggregated-balance
 import { useBalancesStore } from '@/modules/balances/use-balances-store';
 import { millisecondsToSeconds } from '@/modules/core/common/data/date';
 import { useSetting } from '@/modules/settings/use-setting';
-import { isFallbackQuality, type ResolvedPrice } from '@/modules/statistics/pricing/price-series';
+import { isFallbackQuality } from '@/modules/statistics/pricing/price-series';
 
 function defaultNetValue(): NetValue {
   return {

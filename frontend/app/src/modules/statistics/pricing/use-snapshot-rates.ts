@@ -1,5 +1,4 @@
-import type { ResolvedPrice } from '@/modules/statistics/pricing/price-series';
-import { type BigNumber, Zero } from '@rotki/common';
+import { type BigNumber, type ResolvedPrice, Zero } from '@rotki/common';
 import { CURRENCY_USD } from '@/modules/assets/amount-display/currencies';
 import { useSetting } from '@/modules/settings/use-setting';
 import { type BackfillDemand, usePriceBackfill } from '@/modules/statistics/pricing/use-price-backfill';

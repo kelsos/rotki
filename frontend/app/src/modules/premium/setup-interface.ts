@@ -8,6 +8,7 @@ import type {
 } from '@rotki/common';
 import type { FrontendSettingsPayload } from '@/modules/settings/types/frontend-settings';
 import dayjs from 'dayjs';
+import BalanceViewPicker from '@/modules/balances/components/BalanceViewPicker.vue';
 import { convertToTimestamp } from '@/modules/core/common/data/date';
 import { DateFormat } from '@/modules/core/common/date-format';
 import { isOfEnum } from '@/modules/core/common/helpers/is-of-enum';
@@ -67,6 +68,9 @@ export function createPremiumApi(): PremiumApi {
   }
 
   return {
+    components: {
+      BalanceViewPicker,
+    },
     data: {
       assets: assetsApi(),
       balances: balancesApi(),

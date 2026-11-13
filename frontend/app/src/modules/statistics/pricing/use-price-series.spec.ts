@@ -1,11 +1,11 @@
-import { BigNumber } from '@rotki/common';
+import { BigNumber, PriceQuality } from '@rotki/common';
 import { withSetup } from '@test/utils/with-setup';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useCurrencies } from '@/modules/assets/amount-display/currencies';
 import { defaultGeneralSettings } from '@/modules/settings/factories';
 import { useSettingsRepo } from '@/modules/settings/settings-repo';
-import { DAY_SECONDS, PriceQuality } from '@/modules/statistics/pricing/price-series';
+import { DAY_SECONDS } from '@/modules/statistics/pricing/price-series';
 import { usePriceSeries } from '@/modules/statistics/pricing/use-price-series';
 import { PricePair, usePriceSeriesStore } from '@/modules/statistics/pricing/use-price-series-store';
 

@@ -1,4 +1,4 @@
-import type { BigNumber } from '@rotki/common';
+import { type BigNumber, PriceQuality, type ResolvedPrice } from '@rotki/common';
 
 /** Seconds in a day. */
 export const DAY_SECONDS = 86_400;
@@ -6,34 +6,10 @@ export const DAY_SECONDS = 86_400;
 /** How far a cached price may sit from the requested time and still count as that time's price. */
 export const EXACT_TOLERANCE_SECONDS = DAY_SECONDS / 2;
 
-/**
- * Where a resolved price came from, best first.
- *
- * @remarks
- * Only `exact` and `derived` are real prices for that time. The rest are stand-ins the chart must
- * flag, and `missing` means no price at all: the value is left out, never counted as zero.
- */
-export const PriceQuality = {
-  EXACT: 'exact',
-  DERIVED: 'derived',
-  CARRIED: 'carried',
-  BACK_FILLED: 'back-filled',
-  CURRENT: 'current',
-  MISSING: 'missing',
-} as const;
-
-export type PriceQuality = typeof PriceQuality[keyof typeof PriceQuality];
-
 export interface KnownPrice {
   /** Unix seconds. */
   readonly time: number;
   readonly price: BigNumber;
-}
-
-export interface ResolvedPrice {
-  /** Undefined only when `quality` is missing. */
-  readonly price: BigNumber | undefined;
-  readonly quality: PriceQuality;
 }
 
 export interface PriceSources {

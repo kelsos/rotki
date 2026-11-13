@@ -1,10 +1,10 @@
 import type { ComputedRef, MaybeRefOrGetter } from 'vue';
-import { type BigNumber, One } from '@rotki/common';
+import { type BigNumber, One, PriceQuality, type ResolvedPrice } from '@rotki/common';
 import { startPromise } from '@shared/utils';
 import { CURRENCY_USD } from '@/modules/assets/amount-display/currencies';
 import { usePriceUtils } from '@/modules/assets/prices/use-price-utils';
 import { useSetting } from '@/modules/settings/use-setting';
-import { PriceQuality, type ResolvedPrice, resolvePriceSeries } from '@/modules/statistics/pricing/price-series';
+import { resolvePriceSeries } from '@/modules/statistics/pricing/price-series';
 import { usePriceCacheReader } from '@/modules/statistics/pricing/use-price-cache-reader';
 import { usePriceSeriesStore } from '@/modules/statistics/pricing/use-price-series-store';
 

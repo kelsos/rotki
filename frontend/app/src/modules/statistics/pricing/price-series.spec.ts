@@ -1,13 +1,6 @@
-import { bigNumberify } from '@rotki/common';
+import { bigNumberify, PriceQuality } from '@rotki/common';
 import { describe, expect, it } from 'vitest';
-import {
-  DAY_SECONDS,
-  isFallbackQuality,
-  type KnownPrice,
-  nearestWithin,
-  PriceQuality,
-  resolvePriceSeries,
-} from '@/modules/statistics/pricing/price-series';
+import { DAY_SECONDS, isFallbackQuality, type KnownPrice, nearestWithin, resolvePriceSeries } from '@/modules/statistics/pricing/price-series';
 
 function point(day: number, price: number | string): KnownPrice {
   return { price: bigNumberify(price), time: day * DAY_SECONDS };

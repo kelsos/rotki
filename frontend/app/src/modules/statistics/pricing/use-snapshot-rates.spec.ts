@@ -1,13 +1,12 @@
 import type { MaybeRefOrGetter } from 'vue';
 import type { BackfillDemand } from '@/modules/statistics/pricing/use-price-backfill';
-import { BigNumber } from '@rotki/common';
+import { BigNumber, PriceQuality, type ResolvedPrice } from '@rotki/common';
 import { withSetup } from '@test/utils/with-setup';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useCurrencies } from '@/modules/assets/amount-display/currencies';
 import { defaultGeneralSettings } from '@/modules/settings/factories';
 import { useSettingsRepo } from '@/modules/settings/settings-repo';
-import { PriceQuality, type ResolvedPrice } from '@/modules/statistics/pricing/price-series';
 import { SNAPSHOT_RATES_DEMAND, useSnapshotRates } from '@/modules/statistics/pricing/use-snapshot-rates';
 import { useStatisticsStore } from '@/modules/statistics/use-statistics-store';
 

@@ -1,12 +1,12 @@
 import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue';
 import type { NetValueChartData } from '@/modules/dashboard/graph/types';
-import { type BigNumber, Zero } from '@rotki/common';
+import { type BigNumber, type ResolvedPrice, Zero } from '@rotki/common';
 import { useAssetInfoRetrieval } from '@/modules/assets/use-asset-info-retrieval';
 import { useHistoricalBalancesApi } from '@/modules/balances/api/use-historical-balances-api';
 import { millisecondsToSeconds } from '@/modules/core/common/data/date';
 import { logger } from '@/modules/core/common/logging/logging';
 import { buildNetValueSeries, type DailyAmounts, isEstimatedPoint, type NetValuePoint } from '@/modules/statistics/pricing/net-value-series';
-import { DAY_SECONDS, type ResolvedPrice } from '@/modules/statistics/pricing/price-series';
+import { DAY_SECONDS } from '@/modules/statistics/pricing/price-series';
 import { type BackfillDemand, usePriceBackfill } from '@/modules/statistics/pricing/use-price-backfill';
 import { usePriceSeries } from '@/modules/statistics/pricing/use-price-series';
 
@@ -63,11 +63,13 @@ function unionOf(points: readonly NetValuePoint[], pick: (point: NetValuePoint) 
  * @param startingDate - first day of the range, unix seconds
  * @param enabled - whether the History view is showing; nothing is fetched otherwise
  * @param currentNetWorth - the History net worth now, in the main currency
+ * @param demandId - the backfill demand to register under; each chart showing at once needs its own
  */
 export function useHistoryNetValue(
   startingDate: MaybeRefOrGetter<number>,
   enabled: MaybeRefOrGetter<boolean>,
   currentNetWorth: MaybeRefOrGetter<BigNumber>,
+  demandId: string = HISTORY_NET_VALUE_DEMAND,
 ): UseHistoryNetValueReturn {
   const { fetchHistoricalNetValue } = useHistoricalBalancesApi();
   const { getAssetInfo } = useAssetInfoRetrieval();
@@ -123,7 +125,7 @@ export function useHistoryNetValue(
     };
   });
 
-  usePriceBackfill().register(HISTORY_NET_VALUE_DEMAND, demand);
+  usePriceBackfill().register(demandId, demand);
 
   async function refresh(): Promise<void> {
     if (!toValue(enabled))

@@ -1,7 +1,6 @@
-import { bigNumberify } from '@rotki/common';
+import { bigNumberify, PriceQuality, type ResolvedPrice } from '@rotki/common';
 import { describe, expect, it } from 'vitest';
 import { buildNetValueSeries, isEstimatedPoint } from '@/modules/statistics/pricing/net-value-series';
-import { PriceQuality, type ResolvedPrice } from '@/modules/statistics/pricing/price-series';
 
 function priced(price: number, quality: ResolvedPrice['quality'] = PriceQuality.EXACT): ResolvedPrice {
   return { price: bigNumberify(price), quality };

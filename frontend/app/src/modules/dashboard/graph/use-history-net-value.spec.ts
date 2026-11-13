@@ -1,12 +1,11 @@
 import type { MaybeRefOrGetter } from 'vue';
 import type { HistoricalNetValueResponse } from '@/modules/history/balances/types';
 import type { BackfillDemand } from '@/modules/statistics/pricing/use-price-backfill';
-import { BigNumber } from '@rotki/common';
+import { BigNumber, PriceQuality, type ResolvedPrice } from '@rotki/common';
 import { withSetup } from '@test/utils/with-setup';
 import flushPromises from 'flush-promises';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { HISTORY_NET_VALUE_DEMAND, useHistoryNetValue } from '@/modules/dashboard/graph/use-history-net-value';
-import { PriceQuality, type ResolvedPrice } from '@/modules/statistics/pricing/price-series';
 
 const { fetchHistoricalNetValue, register, spam } = vi.hoisted(() => ({
   fetchHistoricalNetValue: vi.fn<(from: number, to: number) => Promise<HistoricalNetValueResponse>>(),

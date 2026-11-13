@@ -2,6 +2,7 @@ import type { MaybeRef } from 'vue';
 import {
   type AssetsApi,
   type BalancesApi,
+  type BalanceViewApi,
   type BigNumber,
   type LocationData,
   One,
@@ -22,6 +23,8 @@ import { useAssetInfoRetrieval } from '@/modules/assets/use-asset-info-retrieval
 import { useAssetsStore } from '@/modules/assets/use-assets-store';
 import { usePriceApi } from '@/modules/balances/api/use-price-api';
 import { useAggregatedBalances } from '@/modules/balances/use-aggregated-balances';
+import { useBalanceView } from '@/modules/balances/view/use-balance-view';
+import { pricingApi } from '@/modules/premium/premium-pricing-apis';
 import { rankOwnedAssets } from '@/modules/premium/rank-owned-assets';
 import { useSetting } from '@/modules/settings/use-setting';
 import { useStatisticsApi } from '@/modules/statistics/api/use-statistics-api';
@@ -62,6 +65,7 @@ export function statisticsApi(): StatisticsApi {
   const { useIsActivePrefix } = useTaskCenter();
 
   return {
+    ...pricingApi(),
     async assetValueDistribution(): Promise<TimedAssetBalances> {
       return queryLatestAssetValueDistribution();
     },
@@ -128,6 +132,10 @@ export function balancesApi(): BalancesApi {
       });
 
       return data.assets[asset] ?? {};
+    },
+    view: (): BalanceViewApi => {
+      const { available, isHistory, setView } = useBalanceView();
+      return { available, isHistory, setView };
     },
   };
 }
