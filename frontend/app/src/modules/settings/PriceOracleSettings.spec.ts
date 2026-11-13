@@ -46,6 +46,7 @@ describe('priceOracleSettings', () => {
     return mount(PriceOracleSettings, {
       global: {
         stubs: {
+          HistoricPriceBackfillSetting: true,
           PriceRefresh: true,
           PrioritizedList: {
             emits: ['update:modelValue'],

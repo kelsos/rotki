@@ -103,6 +103,14 @@ export const frontendRegistry = {
     anchor: SettingsHighlightIds.GRAPH_BASIS,
     search: { category: SettingsCategoryIds.GRAPH, titleKey: msg.$t('frontend_settings.graph_basis.title') },
   }),
+  historicPriceBackfill: frontend('historicPriceBackfill', {
+    anchor: SettingsHighlightIds.HISTORIC_PRICE_BACKFILL,
+    search: {
+      category: SettingsCategoryIds.PRICE_ORACLE,
+      keywords: [msg.$t('historic_price_backfill.subtitle')],
+      titleKey: msg.$t('historic_price_backfill.title'),
+    },
+  }),
   ignoreSnapshotError: frontend('ignoreSnapshotError'),
   itemsPerPage: frontend('itemsPerPage', { mirror: useItemsPerPage }),
   language: frontend('language', {

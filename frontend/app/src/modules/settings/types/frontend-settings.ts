@@ -113,6 +113,21 @@ export enum BlockchainRefreshButtonBehaviour {
 
 const BlockchainRefreshButtonBehaviourEnum = z.enum(BlockchainRefreshButtonBehaviour);
 
+/**
+ * How missing historic prices of the graphs get fetched from the price oracles.
+ *
+ * @remarks
+ * Both send held assets to the oracles, which is why automatic is opt-in.
+ */
+export const HistoricPriceBackfill = {
+  /** Only when the user asks for the prices of a chart. */
+  MANUAL: 'manual',
+  /** A few at a time in the background, paused while other work runs. */
+  AUTOMATIC: 'automatic',
+} as const;
+
+export type HistoricPriceBackfill = typeof HistoricPriceBackfill[keyof typeof HistoricPriceBackfill];
+
 const SavedFilterLocationEnum = z.enum(SavedFilterLocations);
 
 const PrivacyModeEnum = z.nativeEnum(PrivacyMode);
@@ -229,6 +244,7 @@ export const FrontendSettings = z.object({
   explorers: ExplorersSettings.default({}),
   gnosisPaySafeMigrationNeverNotify: z.boolean().default(false),
   graphZeroBased: z.boolean().default(false),
+  historicPriceBackfill: z.enum(HistoricPriceBackfill).default(HistoricPriceBackfill.MANUAL).catch(HistoricPriceBackfill.MANUAL),
   ignoreSnapshotError: z.boolean().default(false),
   itemsPerPage: z.number().positive().int().default(10),
   language: SupportedLanguageEnum.default(SupportedLanguage.EN),

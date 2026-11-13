@@ -47,7 +47,7 @@ export interface PriceSources {
   readonly current?: BigNumber;
 }
 
-interface EffectivePrice extends KnownPrice {
+export interface EffectivePrice extends KnownPrice {
   readonly derived: boolean;
 }
 
@@ -95,7 +95,7 @@ export function nearestWithin<T extends KnownPrice>(points: readonly T[], time: 
  * Every price the cache can stand behind: direct prices, plus USD prices converted at a USD rate
  * from the same time where no direct price is close.
  */
-function effectivePrices(sources: PriceSources, tolerance: number): EffectivePrice[] {
+export function knownPrices(sources: PriceSources, tolerance: number = EXACT_TOLERANCE_SECONDS): EffectivePrice[] {
   const direct = usable(sources.direct);
   const usdRates = usable(sources.usdToMain);
   const derived: EffectivePrice[] = [];
@@ -128,7 +128,7 @@ export function resolvePriceSeries(
   times: readonly number[],
   tolerance: number = EXACT_TOLERANCE_SECONDS,
 ): ResolvedPrice[] {
-  const known = effectivePrices(sources, tolerance);
+  const known = knownPrices(sources, tolerance);
   const current = sources.current?.isFinite() && sources.current.gt(0) ? sources.current : undefined;
 
   return times.map((time) => {

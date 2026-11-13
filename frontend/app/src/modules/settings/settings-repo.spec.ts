@@ -13,6 +13,7 @@ import {
   BlockchainRefreshButtonBehaviour,
   DashboardTableType,
   type FrontendSettings,
+  HistoricPriceBackfill,
   Quarter,
   SupportedLanguage,
 } from '@/modules/settings/types/frontend-settings';
@@ -101,6 +102,7 @@ describe('useSettingsRepo frontend channel', () => {
       },
       defaultThemeVersion: 1,
       graphZeroBased: true,
+      historicPriceBackfill: HistoricPriceBackfill.MANUAL,
       ignoreSnapshotError: false,
       showGraphRangeSelector: true,
       nftsInNetValue: true,

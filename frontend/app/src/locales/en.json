@@ -4698,6 +4698,20 @@
     "hint_zero": "All the assets without price will be hidden",
     "lt": "<"
   },
+  "historic_price_backfill": {
+    "automatic": {
+      "hint": "Sends held assets to the price oracles a few at a time in the background, and pauses while other work runs.",
+      "label": "Automatically, a few at a time"
+    },
+    "error": "Could not save how missing historical prices are fetched",
+    "manual": {
+      "hint": "Nothing is sent to the price oracles until you ask for a chart's missing prices.",
+      "label": "Only when I ask"
+    },
+    "subtitle": "Charts price what the cache has and estimate the rest. Missing prices are fetched from the price oracles, which tells them which assets you hold.",
+    "success": "Saved how missing historical prices are fetched",
+    "title": "Fetch missing historical prices"
+  },
   "historical_balances": {
     "as_of": {
       "end_of_year": "End of {year}",
@@ -7219,6 +7233,7 @@
         "import": "Importing report data"
       },
       "prices": {
+        "backfill": "Filling missing prices for {asset}",
         "daily": "Filling daily prices for {asset}",
         "exchange_rates": "Updating exchange rates for {currency}",
         "historic": "Looking up {fromAsset} to {toAsset} on {date}",

@@ -8,6 +8,7 @@ import {
   BlockchainRefreshButtonBehaviour,
   DashboardTableType,
   type FrontendSettings,
+  HistoricPriceBackfill,
   Quarter,
   SupportedLanguage,
 } from '@/modules/settings/types/frontend-settings';
@@ -64,6 +65,7 @@ describe('user-types', () => {
       dismissedApiKeyNotices: [],
       dockShowSummary: true,
       graphZeroBased: true,
+      historicPriceBackfill: HistoricPriceBackfill.MANUAL,
       ignoreSnapshotError: false,
       showGraphRangeSelector: true,
       notifyNewNfts: false,

@@ -5,6 +5,8 @@ import type { PrioritizedListId } from '@/modules/settings/types/prioritized-lis
 import PriceRefresh from '@/modules/assets/prices/PriceRefresh.vue';
 import { useHistoricPriceCache } from '@/modules/assets/prices/use-historic-price-cache';
 import { usePriceRefresh } from '@/modules/assets/prices/use-price-refresh';
+import SettingsItem from '@/modules/settings/controls/SettingsItem.vue';
+import HistoricPriceBackfillSetting from '@/modules/settings/HistoricPriceBackfillSetting.vue';
 import { CURRENT_PRICE_ORACLE_ITEMS, HISTORICAL_PRICE_ORACLE_ITEMS } from '@/modules/settings/price-oracle-lists';
 import SettingCategoryHeader from '@/modules/settings/SettingCategoryHeader.vue';
 import { PriceOracle } from '@/modules/settings/types/price-oracle';
@@ -168,5 +170,14 @@ watch(historicWriteError, (message) => {
         </template>
       </PrioritizedList>
     </div>
+    <SettingsItem setting-key="historicPriceBackfill">
+      <template #title>
+        {{ t('historic_price_backfill.title') }}
+      </template>
+      <template #subtitle>
+        {{ t('historic_price_backfill.subtitle') }}
+      </template>
+      <HistoricPriceBackfillSetting />
+    </SettingsItem>
   </div>
 </template>

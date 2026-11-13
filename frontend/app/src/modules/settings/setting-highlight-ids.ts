@@ -32,6 +32,7 @@ export const SettingsHighlightIds = {
   GAS_COSTS: 'setting-gas-costs',
   GLOBALDB_INFO: 'setting-globaldb-info',
   GRAPH_BASIS: 'setting-graph-basis',
+  HISTORIC_PRICE_BACKFILL: 'setting-historic-price-backfill',
   INTERNAL_TX_CONFLICT_REPULL: 'setting-internal-tx-conflict-repull',
   IPFS_GATEWAY: 'setting-ipfs-gateway',
   LANGUAGE: 'setting-language',
