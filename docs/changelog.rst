@@ -2,6 +2,9 @@
 Changelog
 =========
 
+* :feature:`-` Premium: in the History view the dashboard net worth chart now plots your holdings derived from history events, priced at each day's prices, instead of the live snapshots. Stretches priced with estimates are shaded, days with nothing priced leave a gap, and a note below the chart offers to fetch the missing prices.
+* :feature:`-` Missing historical prices of the charts can now be fetched a few at a time, so the price oracles are not flooded and rate limits are respected. By default they are fetched only when you ask from a chart. Settings > Oracles can let them be fetched in the background instead, which tells the oracles which assets you hold.
+* :bug:`4031` For a main currency other than USD, the dashboard net worth chart now converts each snapshot at the exchange rate of its own day instead of today's rate, so the chart no longer moves with the exchange rate.
 * :bug:`-` Bitpanda history queries now save each page as it arrives, so a failure part way through no longer throws away the history already fetched.
 * :bug:`-` Refreshing exchange balances now queries each exchange once. Before, an exchange with several connected accounts was queried again for every account, so balances took longer to load the more accounts it had.
 * :feature:`8019` Balances > Exchanges can now show the assets of one account at a time when an exchange has several connected accounts. Pick the account from the account menu above the table, which shows each account's value and share and marks one whose last refresh failed, or pick All accounts for the whole exchange.
