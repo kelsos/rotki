@@ -175,6 +175,18 @@ describe('modules/statistics/pricing/use-price-backfill', () => {
     expect(queryHistoricalAssetPrices).toHaveBeenCalledOnce();
   });
 
+  it('should trickle an unattended demand while the setting is manual, but not the others', async () => {
+    withSetup(() => {
+      const backfill = usePriceBackfill();
+      backfill.register('chart', demand());
+      backfill.register('rates', { ...demand(), holdings: [{ asset: 'EUR', heldValue: bigNumberify(100) }], unattended: true });
+    });
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(queryHistoricalAssetPrices).toHaveBeenCalledOnce();
+    expect(queryHistoricalAssetPrices).toHaveBeenCalledWith(expect.objectContaining({ asset: 'EUR' }));
+  });
+
   it('should cancel the in-flight request on stop', () => {
     const { result } = withSetup(() => usePriceBackfill());
     result.stop();

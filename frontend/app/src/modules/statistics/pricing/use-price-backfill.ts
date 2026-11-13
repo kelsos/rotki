@@ -26,6 +26,14 @@ const PLAN_LOOKAHEAD = 20;
 export interface BackfillDemand {
   readonly range: BackfillRange;
   readonly holdings: readonly { readonly asset: string; readonly heldValue: BigNumber }[];
+  /**
+   * Fetched in the background even while the setting is manual.
+   *
+   * @remarks
+   * Only for demands that reveal nothing about holdings, such as the USD rate of the main
+   * currency, which rotki already asks for when it loads today's exchange rates.
+   */
+  readonly unattended?: boolean;
 }
 
 type RequestResult = 'ok' | 'rate-limited';
@@ -92,7 +100,9 @@ export const usePriceBackfill = createSharedComposable((): UsePriceBackfillRetur
   const automatic = computed<boolean>(() => get(mode) === HistoricPriceBackfill.AUTOMATIC);
   const syncing = useIsActivePrefix(ActivityKind.HISTORY_SYNC);
   const fetchingDaily = useIsActivePrefix(ActivityKind.PRICES, ActivityPart.DAILY);
-  const canTrickle = computed<boolean>(() => get(automatic) && get(focused) && !get(syncing) && !get(fetchingDaily));
+  const demandValues = computed<(BackfillDemand | undefined)[]>(() => Array.from(get(demands).values(), demand => toValue(demand)));
+  const hasBackgroundWork = computed<boolean>(() => get(automatic) || get(demandValues).some(demand => demand?.unattended === true));
+  const canTrickle = computed<boolean>(() => get(hasBackgroundWork) && get(focused) && !get(syncing) && !get(fetchingDaily));
 
   function backfillAssets(demand: BackfillDemand): BackfillAsset[] {
     const failed = get(failedDailyPrices);
@@ -106,12 +116,19 @@ export const usePriceBackfill = createSharedComposable((): UsePriceBackfillRetur
     }));
   }
 
-  function nextRequest(): BackfillRequest | undefined {
+  /** Whether a demand may be served now: the chart asked for, or a background one the mode allows. */
+  function isServed(id: string, demand: BackfillDemand): boolean {
     const target = get(manualTarget);
+    if (target)
+      return id === target;
+    return get(automatic) || demand.unattended === true;
+  }
+
+  function nextRequest(): BackfillRequest | undefined {
     const candidates: BackfillRequest[] = [];
     for (const [id, source] of get(demands)) {
       const demand = toValue(source);
-      if (!demand || (target && id !== target))
+      if (!demand || !isServed(id, demand))
         continue;
       const fresh = planBackfill(backfillAssets(demand), demand.range, PLAN_LOOKAHEAD)
         .find(request => !attempted.has(requestKey(request)));
@@ -230,8 +247,6 @@ export const usePriceBackfill = createSharedComposable((): UsePriceBackfillRetur
     set(manualTarget, id);
     wake();
   }
-
-  const demandValues = computed<(BackfillDemand | undefined)[]>(() => Array.from(get(demands).values(), demand => toValue(demand)));
 
   watch([canTrickle, demandValues], wake);
 
