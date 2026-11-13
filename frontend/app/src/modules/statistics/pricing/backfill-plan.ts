@@ -5,10 +5,10 @@ import { DAY_SECONDS, type KnownPrice } from '@/modules/statistics/pricing/price
 export const ANCHOR_COUNT = 8;
 
 /** Gaps scoring below this are not worth a request. */
-export const SCORE_FLOOR = 1e-4;
+const SCORE_FLOOR = 1e-4;
 
 /** An asset whose value stays below this share of the total is never fetched. */
-export const NEGLIGIBLE_SHARE = 0.001;
+const NEGLIGIBLE_SHARE = 0.001;
 
 /**
  * The price move assumed across a gap with a failed end, where no ratio can be measured.
@@ -16,7 +16,7 @@ export const NEGLIGIBLE_SHARE = 0.001;
  * @remarks
  * Moderate on purpose: such a gap is refined, but after gaps whose ends show a real move.
  */
-export const UNKNOWN_MOVE = 0.05;
+const UNKNOWN_MOVE = 0.05;
 
 /** Ranges up to this long are refined to daily prices, longer ones to weekly. */
 const DAILY_RANGE_LIMIT = 92 * DAY_SECONDS;

@@ -2,7 +2,7 @@ import { type BigNumber, PriceQuality, type ResolvedPrice, Zero } from '@rotki/c
 import { isFallbackQuality } from '@/modules/statistics/pricing/price-series';
 
 /** Above this share of a point's value priced by a stand-in, the point is drawn as estimated. */
-export const ESTIMATED_SHARE_THRESHOLD = 0.01;
+const ESTIMATED_SHARE_THRESHOLD = 0.01;
 
 export interface DailyAmounts {
   /** Day starts, unix seconds. */

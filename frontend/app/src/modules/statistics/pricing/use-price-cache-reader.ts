@@ -6,7 +6,7 @@ import { EXACT_TOLERANCE_SECONDS, type KnownPrice } from '@/modules/statistics/p
 import { PricePair, usePriceSeriesStore } from '@/modules/statistics/pricing/use-price-series-store';
 
 /** Asset and time pairs per cache request, so one chart never sends one huge payload. */
-export const CACHE_READ_CHUNK = 1000;
+const CACHE_READ_CHUNK = 1000;
 
 interface CacheQuery {
   readonly pair: PricePair;
